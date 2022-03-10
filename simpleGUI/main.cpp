@@ -13,10 +13,7 @@ int main()
 	BondingBox box2(Point(500.0, 630.0), Point(700.0, 600.0));
 	Button* btn;
 	btn = new Button(box1);
-	Font font;
-	font.loadFromFile("Roboto-Regular.ttf");
-	btn->text.setFont(font);
-	btn->text.setString("ABOBA");
+	//btn->setString("abobus");
 	exp.load(btn);
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())

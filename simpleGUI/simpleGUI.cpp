@@ -1,4 +1,22 @@
 #include "simpleGUI.h"
+
+Fonts my_fonts;
+
+//Fonts
+
+Fonts::Fonts()
+{
+	roboto_reguar.loadFromFile("Roboto-Regular.ttf");
+}
+Fonts::~Fonts()
+{
+}
+
+const Font& Fonts::getRobotoRegular() const
+{
+	return roboto_reguar;
+}
+
 //BondingBox
 
 BondingBox::BondingBox() :
@@ -225,11 +243,10 @@ Button::Button() //заполнить этот коструктор
 
 Button::Button(BondingBox _box) :
 	ControlElement(_box),
-	color(0, 0, 0)
+	color(0, 0, 0),
+	text("abobus", my_fonts.getRobotoRegular(), 14)
 {
-	text.setCharacterSize(10);
-	text.setString("ABOBA");
-	text.setPosition((box.ld.x + box.ru.x) / 2, (box.ld.y + box.ru.y) / 2);
+	textUpdate();
 }
 
 Button::~Button()
@@ -263,19 +280,19 @@ void Button::draw(RenderWindow& window)
 	Vertex v[5];
 	Point pnt;
 	pnt = box.getLd();
-	v[3].color = Color::White;
+	v[0].color = Color::White;
 	v[0].position.x = pnt.x;
 	v[0].position.y = pnt.y;
-	v[3].color = Color::White;
 	pnt = box.getLu();
+	v[1].color = Color::White;
 	v[1].position.x = pnt.x;
 	v[1].position.y = pnt.y;
-	v[3].color = Color::White;
 	pnt = box.getRu();
+	v[2].color = Color::White;
 	v[2].position.x = pnt.x;
 	v[2].position.y = pnt.y;
-	v[3].color = Color::White;
 	pnt = box.getRd();
+	v[3].color = Color::White;
 	v[3].position.x = pnt.x;
 	v[3].position.y = pnt.y;
 	v[4] = v[0];
@@ -285,4 +302,37 @@ void Button::draw(RenderWindow& window)
 	window.draw(rect);
 	window.draw(v, 5, PrimitiveType::LinesStrip);
 	window.draw(text);
+}
+
+void Button::setText(const Text& _text)
+{
+	text = _text;
+	textUpdate();
+}
+
+void Button::setString(const String& _string)
+{
+	text.setString(_string);
+	textUpdate();
+}
+
+void Button::setFont(const Font& _font)
+{
+	text.setFont(_font);
+	textUpdate();
+}
+
+void Button::setCharacterSize(unsigned int _size)
+{
+	text.setCharacterSize(_size);
+	textUpdate();
+}
+
+void Button::textUpdate()
+{
+	text.setPosition(int(((box.ld.x + box.ru.x) / 2) - (text.getLocalBounds().width / 2)), int(((box.ld.y + box.ru.y) / 2) - (text.getLocalBounds().height / 2)));
+}
+
+void Button::positionUpdate()
+{
 }

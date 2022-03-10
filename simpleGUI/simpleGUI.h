@@ -6,6 +6,7 @@
 
 using namespace sf;
 
+class Fonts;
 class Interface;
 class Element;
 class ControlElement;
@@ -14,7 +15,15 @@ class Button;
 class BoundingBox;
 class WMInterfaceData;
 
-
+class Fonts
+{
+public:
+	Fonts();
+	~Fonts();
+	const Font& getRobotoRegular() const;
+private:
+	Font roboto_reguar;
+};
 class BondingBox //переимнеовать в BoundingBox
 {
 public:
@@ -104,6 +113,13 @@ public:
 	~Button();
 	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	virtual void draw(RenderWindow& window);
-	Text text;
+	void setText(const Text& _text);
+	void setString(const String& _string);
+	void setFont(const Font& _font);
+	void setCharacterSize(unsigned int _size);
 	Color color;
+private:
+	Text text;
+	void textUpdate();
+	void positionUpdate();
 };
