@@ -2,6 +2,7 @@
 
 Fonts my_fonts;
 
+
 //Fonts
 
 Fonts::Fonts()
@@ -16,6 +17,7 @@ const Font& Fonts::getRobotoRegular() const
 {
 	return roboto_reguar;
 }
+
 
 //BondingBox
 
@@ -76,6 +78,7 @@ Point BondingBox::getRd()
 	return Point(ru.x, ld.y);
 }
 
+
 //Interface
 
 Interface::Interface()
@@ -125,6 +128,7 @@ void Interface::load(Element* element)
 	elements.push_back(element);
 }
 
+
 //Element
 
 Element::Element()
@@ -148,6 +152,7 @@ void Element::draw(RenderWindow& window)
 {
 }
 
+
 //WMInterfaceData
 
 WMInterfaceData::WMInterfaceData() :
@@ -160,6 +165,7 @@ WMInterfaceData::WMInterfaceData() :
 WMInterfaceData::~WMInterfaceData()
 {
 }
+
 
 //ElementsMenu
 
@@ -212,6 +218,7 @@ void ElementsMenu::load(ControlElement* element)
 	elements.push_back(element);
 }
 
+
 //ControlElement
 
 ControlElement::ControlElement()
@@ -235,6 +242,47 @@ void ControlElement::draw(RenderWindow& window)
 {
 }
 
+
+//TextElement
+
+TextElement::TextElement() :
+	text("button", my_fonts.getRobotoRegular(), 14)
+{
+}
+
+TextElement::~TextElement()
+{
+}
+
+void TextElement::setText(const Text& _text)
+{
+	text = _text;
+	textUpdate();
+}
+
+void TextElement::setString(const String& _string)
+{
+	text.setString(_string);
+	textUpdate();
+}
+
+void TextElement::setFont(const Font& _font)
+{
+	text.setFont(_font);
+	textUpdate();
+}
+
+void TextElement::setCharacterSize(unsigned int _size)
+{
+	text.setCharacterSize(_size);
+	textUpdate();
+}
+
+void TextElement::textUpdate()
+{
+}
+
+
 //Button
 
 Button::Button() //заполнить этот коструктор
@@ -242,11 +290,15 @@ Button::Button() //заполнить этот коструктор
 }
 
 Button::Button(BondingBox _box) :
-	ControlElement(_box),
-	color(0, 0, 0),
-	text("abobus", my_fonts.getRobotoRegular(), 14)
+	ControlElement(_box)
 {
 	textUpdate();
+	modelUpdate();
+	v[0].color = Color(128, 128, 128);
+	v[1].color = Color(128, 128, 128);
+	v[2].color = Color(128, 128, 128);
+	v[3].color = Color(128, 128, 128);
+	v[4].color = Color(128, 128, 128);
 }
 
 Button::~Button()
@@ -259,80 +311,55 @@ void Button::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	{
 		if (Mouse::isButtonPressed(Mouse::Button::Left) == 1)
 		{
-			color = Color(30, 30, 30);
+			setColor(Color(50, 50, 50));
 			if (wm_dat.prev_lmp == 0)
 			{
 			}
 		}
 		else
 		{
-			color = Color(40, 40, 40);
+			setColor(Color(60, 60, 60));
 		}
 	}
 	else
 	{
-		color = Color(0, 0, 0);
+		setColor(Color(40, 40, 40));
 	}
 }
 
 void Button::draw(RenderWindow& window)
 {
-	Vertex v[5];
-	Point pnt;
-	pnt = box.getLd();
-	v[0].color = Color::White;
-	v[0].position.x = pnt.x;
-	v[0].position.y = pnt.y;
-	pnt = box.getLu();
-	v[1].color = Color::White;
-	v[1].position.x = pnt.x;
-	v[1].position.y = pnt.y;
-	pnt = box.getRu();
-	v[2].color = Color::White;
-	v[2].position.x = pnt.x;
-	v[2].position.y = pnt.y;
-	pnt = box.getRd();
-	v[3].color = Color::White;
-	v[3].position.x = pnt.x;
-	v[3].position.y = pnt.y;
-	v[4] = v[0];
-	RectangleShape rect(Vector2f(box.getWidth(), box.getHeight()));
-	rect.setFillColor(color); //изменить прозрачность
-	rect.move(Vector2f(box.getLu().x, box.getLu().y));
 	window.draw(rect);
 	window.draw(v, 5, PrimitiveType::LinesStrip);
 	window.draw(text);
 }
 
-void Button::setText(const Text& _text)
+void Button::setColor(Color _color)
 {
-	text = _text;
-	textUpdate();
-}
-
-void Button::setString(const String& _string)
-{
-	text.setString(_string);
-	textUpdate();
-}
-
-void Button::setFont(const Font& _font)
-{
-	text.setFont(_font);
-	textUpdate();
-}
-
-void Button::setCharacterSize(unsigned int _size)
-{
-	text.setCharacterSize(_size);
-	textUpdate();
+	rect.setFillColor(_color);
 }
 
 void Button::textUpdate()
 {
-	text.setPosition(int(((box.ld.x + box.ru.x) / 2) - (text.getLocalBounds().width / 2)), int(((box.ld.y + box.ru.y) / 2) - (text.getLocalBounds().height / 2)));
+	text.setPosition(int(((box.ld.x + box.ru.x) / 2) - (text.getLocalBounds().width / 2)), int(((box.ld.y + box.ru.y) / 2) - (text.getLocalBounds().height / 1.5)));
 }
 
-void Button::positionUpdate()
+void Button::modelUpdate()
 {
+	Point pnt;
+	pnt = box.getLd();
+	v[0].position.x = pnt.x;
+	v[0].position.y = pnt.y;
+	pnt = box.getLu();
+	v[1].position.x = pnt.x;
+	v[1].position.y = pnt.y;
+	pnt = box.getRu();
+	v[2].position.x = pnt.x;
+	v[2].position.y = pnt.y;
+	pnt = box.getRd();
+	v[3].position.x = pnt.x;
+	v[3].position.y = pnt.y;
+	v[4] = v[0];
+	rect.setPosition(box.getLu().x, box.getLu().y);
+	rect.setSize(Vector2f(box.getWidth(), box.getHeight()));
 }

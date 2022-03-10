@@ -10,6 +10,7 @@ class Fonts;
 class Interface;
 class Element;
 class ControlElement;
+class TextElement;
 class ElementsMenu;
 class Button;
 class BoundingBox;
@@ -105,21 +106,31 @@ protected:
 	BondingBox box; //возможно сделать открытым
 };
 
-class Button :public ControlElement
+class TextElement
+{
+public:
+	TextElement();
+	~TextElement();
+	void setText(const Text& _text);
+	void setString(const String& _string);
+	void setFont(const Font& _font);
+	void setCharacterSize(unsigned int _size);
+	virtual void textUpdate();
+	Text text;
+};
+
+class Button :public ControlElement, public TextElement
 {
 public:
 	Button();
 	Button(BondingBox _box);
 	~Button();
-	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	virtual void draw(RenderWindow& window);
-	void setText(const Text& _text);
-	void setString(const String& _string);
-	void setFont(const Font& _font);
-	void setCharacterSize(unsigned int _size);
-	Color color;
+	void update(WMInterfaceData& wm_dat, RenderWindow& window);
+	void draw(RenderWindow& window);
 private:
-	Text text;
+	Vertex v[5];
+	RectangleShape rect;
+	void setColor(Color _color);
 	void textUpdate();
-	void positionUpdate();
+	void modelUpdate();
 };

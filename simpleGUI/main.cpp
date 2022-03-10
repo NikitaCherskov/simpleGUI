@@ -9,8 +9,8 @@ int main()
 	RenderWindow window(VideoMode(1000, 1000), "SFML Works!");
 	Interface exp;
 	exp.setWindow(window);
-	BondingBox box1(Point(500.0, 530.0), Point(700.0, 500.0));
-	BondingBox box2(Point(500.0, 630.0), Point(700.0, 600.0));
+	BondingBox box1(Point(500.0, 520.0), Point(700.0, 500.0));
+	BondingBox box2(Point(500.0, 620.0), Point(700.0, 600.0));
 	Button* btn;
 	btn = new Button(box1);
 	//btn->setString("abobus");
