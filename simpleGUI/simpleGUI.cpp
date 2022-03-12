@@ -1,9 +1,55 @@
 #include "simpleGUI.h"
 
-Fonts my_fonts;
-
+float round(float r, int after_comma)
+{
+	int i;
+	int rank;
+	for (i = 0, rank = 1; i < after_comma; i++) //оптимизировать (заменить на while(after_comma > 0)
+	{
+		rank *= 10;
+	}
+	return float(int(r * rank)) / rank;
+}
+std::string ftos(float convering, int before_comma, int after_comma) //возможно оптимизировать
+{
+	int i;
+	std::string converted;
+	if (after_comma == 0)
+	{
+		converted = std::to_string(int(convering));
+		if (converted.size() > before_comma)
+		{
+			for (i = 0; i < converted.size(); i++)
+			{
+				converted[i] = '9';
+			}
+		}
+		return converted;
+	}
+	else
+	{
+		int j;
+		converted = std::to_string(convering);
+		for (i = 0; i < converted.size() && converted[i] != '.'; i++)
+		{}
+		if (i > before_comma)
+		{
+			int sft;
+			for (j = 0; j < converted.size(); j++)
+			{
+				if (converted[j] != '.')
+				{
+					converted[j] = '9';
+				}
+			}
+			return converted.substr(i - before_comma, after_comma + before_comma + 1);
+		}
+		return converted.substr(0, i + after_comma + 1);
+	}
+}
 
 //Fonts
+Fonts my_fonts;
 
 Fonts::Fonts()
 {
@@ -278,9 +324,42 @@ void TextElement::setCharacterSize(unsigned int _size)
 	textUpdate();
 }
 
+const Text& TextElement::getText(const Text& _text) const
+{
+	return text;
+}
+
 void TextElement::textUpdate()
 {
 }
+
+
+//NumericTextElement
+
+NumericTextElement::NumericTextElement() :
+	text("button", my_fonts.getRobotoRegular(), 14)
+{
+}
+
+NumericTextElement::~NumericTextElement()
+{
+}
+
+void NumericTextElement::setFont(const Font& _font)
+{
+	text.setFont(_font);
+}
+
+void NumericTextElement::setCharacterSize(unsigned int _size)
+{
+	text.setCharacterSize(_size);
+}
+
+const Text& NumericTextElement::getText(const Text& _text) const
+{
+	return text;
+}
+
 
 
 //Button
@@ -362,4 +441,106 @@ void Button::modelUpdate()
 	v[4] = v[0];
 	rect.setPosition(box.getLu().x, box.getLu().y);
 	rect.setSize(Vector2f(box.getWidth(), box.getHeight()));
+}
+
+Label::Label() //заполнить конструктор
+{}
+
+Label::Label(Point _position, int _symbol_max):
+	position(_position),
+	symbol_max(_symbol_max)
+{
+	textUpdate();
+}
+
+Label::~Label()
+{}
+
+void Label::update(WMInterfaceData& wm_dat, RenderWindow& window)
+{
+}
+
+void Label::draw(RenderWindow& window)
+{
+	window.draw(text);
+}
+
+void Label::textUpdate()
+{
+	text.setString(text.getString().substring(0, symbol_max));
+	text.setPosition(position.x, position.y);
+}
+
+
+//NumericLabel
+
+NumericLabel::NumericLabel()
+{
+}
+
+NumericLabel::NumericLabel(Point _position, int _before_comma, int _after_comma, float* _tied):
+	position(_position),
+	bc(_before_comma),
+	ac(_after_comma),
+	tied(_tied),
+	prev_tied(0.0)
+{
+	max = getMax(); //возможно преобразовать в maxUpdate()
+}
+
+NumericLabel::~NumericLabel()
+{
+}
+
+void NumericLabel::setTied(float* _tied)
+{
+	tied = _tied;
+}
+
+void NumericLabel::update(WMInterfaceData& wm_dat, RenderWindow& window)
+{
+}
+
+void NumericLabel::draw(RenderWindow& window)
+{
+	if (prev_tied != *tied)
+	{
+		text.setString(ftos(*tied, bc, ac));
+		prev_tied = *tied;
+		window.draw(text);
+	}
+	else
+	{
+		window.draw(text);
+	}
+}
+
+float NumericLabel::getCut() //заменть round на RoundTo()
+{
+	float cuting = *tied;
+	if (cuting > max)
+	{
+		return max;
+	}
+	return round(cuting, ac);
+}
+
+float NumericLabel::getMax()
+{
+	float _max;
+	int i, j, rank;
+	for (i = 0, _max = 0.0; i < (bc + ac); i++)
+	{
+		for (j = 0, rank = 1; j < i; j++)
+		{
+			rank *= 10;
+		}
+		_max += 9.0 * rank;
+	}
+	for (j = 0, rank = 1; j < ac; j++)
+	{
+		rank *= 10;
+	}
+	_max /= rank;
+	return _max;
 }

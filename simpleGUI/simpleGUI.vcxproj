@@ -144,11 +144,13 @@
   <ItemGroup>
     <ClCompile Include="line_functions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mouseProcessor.cpp" />
     <ClCompile Include="simpleGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DLLStructure.h" />
     <ClInclude Include="line_functions.h" />
+    <ClInclude Include="mouseProcessor.h" />
     <ClInclude Include="simpleGUI.h" />
     <ClInclude Include="SLLStructure.h" />
   </ItemGroup>

@@ -2,6 +2,7 @@
 #include "SFML/Graphics.hpp"
 #include "DLLStructure.h"
 #include "line_functions.h"
+#include "mouseProcessor.h"
 #include <vector>
 
 using namespace sf;
@@ -15,6 +16,10 @@ class ElementsMenu;
 class Button;
 class BoundingBox;
 class WMInterfaceData;
+class Label;
+class NumericLabel;
+float round(float r, int after_comma);
+std::string ftos(float convering, int before_comma, int after_comma);
 
 class Fonts
 {
@@ -115,7 +120,20 @@ public:
 	void setString(const String& _string);
 	void setFont(const Font& _font);
 	void setCharacterSize(unsigned int _size);
+	const Text& getText(const Text& _text) const;
+protected:
 	virtual void textUpdate();
+	Text text;
+};
+class NumericTextElement
+{
+public:
+	NumericTextElement();
+	~NumericTextElement();
+	void setFont(const Font& _font);
+	void setCharacterSize(unsigned int _size);
+	const Text& getText(const Text& _text) const;
+protected:
 	Text text;
 };
 
@@ -133,4 +151,38 @@ private:
 	void setColor(Color _color);
 	void textUpdate();
 	void modelUpdate();
+};
+
+class Label :public ControlElement, public TextElement
+{
+public:
+	Label();
+	Label(Point _position, int _symbol_max);
+	~Label();
+	void update(WMInterfaceData& wm_dat, RenderWindow& window);
+	void draw(RenderWindow& window);
+private:
+	void textUpdate();
+	Point position;
+	int symbol_max;
+};
+
+class NumericLabel :public ControlElement, public NumericTextElement
+{
+public:
+	NumericLabel();
+	NumericLabel(Point _position, int _before_comma, int _after_comma, float* _tied); //сделать значения по умолчанию
+	~NumericLabel();
+	void setTied(float* _tied);
+	void update(WMInterfaceData& wm_dat, RenderWindow& window);
+	void draw(RenderWindow& window);
+private:
+	float getCut();
+	float getMax();
+	Point position;
+	int bc;
+	int ac;
+	float max;
+	float* tied;
+	float prev_tied;
 };
