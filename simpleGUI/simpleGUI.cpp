@@ -188,7 +188,8 @@ void Interface::update() //возможно сделать единовременное присвоение окна
 	{
 		wm_dat.mouse_inside = 0;
 	}
-	wm_dat.prev_lmp = Mouse::isButtonPressed(Mouse::Button::Left);
+	wm_dat.prev_lmp = wm_dat.now_lmp;
+	wm_dat.now_lmp = Mouse::isButtonPressed(Mouse::Button::Left);
 	for (i = 0; i < elements.size(); i++)
 	{
 		elements[i]->update(wm_dat, *window);
@@ -237,6 +238,7 @@ void Element::draw(RenderWindow& window)
 //WMInterfaceData
 
 WMInterfaceData::WMInterfaceData() :
+	now_lmp(0),
 	prev_lmp(0),
 	mouse_inside(0),
 	box(Point(0.0, 0.0), 0.0, 0.0)
@@ -372,7 +374,7 @@ void TextElement::textUpdate()
 //NumericTextElement
 
 NumericTextElement::NumericTextElement() :
-	text("button", my_fonts.getRobotoRegular(), 14)
+	text("button", my_fonts.getRobotoRegular(), 14) //убрать тестовый button
 {
 }
 
@@ -408,11 +410,8 @@ Button::Button(BoundingBox _box) :
 {
 	textUpdate();
 	modelUpdate();
-	v[0].color = Color(128, 128, 128); //запихнуть в цикл
-	v[1].color = Color(128, 128, 128);
-	v[2].color = Color(128, 128, 128);
-	v[3].color = Color(128, 128, 128);
-	v[4].color = Color(128, 128, 128);
+	rect.setOutlineThickness(1.0);
+	rect.setOutlineColor(Color(128, 128, 128));
 }
 
 Button::~Button()
@@ -423,11 +422,12 @@ void Button::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
 	if (box.contains(Mouse::getPosition(window)))
 	{
-		if (Mouse::isButtonPressed(Mouse::Button::Left) == 1)
+		if (wm_dat.now_lmp == 1)
 		{
 			setColor(Color(50, 50, 50));
 			if (wm_dat.prev_lmp == 0)
 			{
+				std::cout << 1;
 			}
 		}
 		else
@@ -444,7 +444,6 @@ void Button::update(WMInterfaceData& wm_dat, RenderWindow& window)
 void Button::draw(RenderWindow& window)
 {
 	window.draw(rect);
-	window.draw(v, 5, PrimitiveType::LinesStrip);
 	window.draw(text);
 }
 
@@ -460,20 +459,6 @@ void Button::textUpdate()
 
 void Button::modelUpdate()
 {
-	Point pnt;
-	pnt = box.getLd();
-	v[0].position.x = pnt.x;
-	v[0].position.y = pnt.y;
-	pnt = box.getLu();
-	v[1].position.x = pnt.x;
-	v[1].position.y = pnt.y;
-	pnt = box.getRu();
-	v[2].position.x = pnt.x;
-	v[2].position.y = pnt.y;
-	pnt = box.getRd();
-	v[3].position.x = pnt.x;
-	v[3].position.y = pnt.y;
-	v[4] = v[0];
 	rect.setPosition(box.getLu().x, box.getLu().y);
 	rect.setSize(Vector2f(box.getWidth(), box.getHeight()));
 }
@@ -520,6 +505,9 @@ NumericLabel::NumericLabel(Point _position, int _before_comma, int _after_comma,
 	tied(_tied),
 	prev_tied(0.0)
 {
+	text.setString(ftos(*tied, bc, ac));
+	prev_tied = *tied;
+	text.setPosition(Vector2f(position.x, position.y));
 	max = getMax(); //возможно преобразовать в maxUpdate()
 }
 
@@ -550,6 +538,11 @@ void NumericLabel::draw(RenderWindow& window)
 	}
 }
 
+void NumericLabel::textUpdate()
+{
+	text.setPosition(Vector2f(position.x, position.y));
+}
+
 float NumericLabel::getCut() //заменть round на RoundTo()
 {
 	float cuting = *tied;
@@ -578,4 +571,112 @@ float NumericLabel::getMax()
 	}
 	_max /= rank;
 	return _max;
+}
+
+
+//Slider
+
+Slider::Slider()
+{
+}
+
+Slider::Slider(BoundingBox _box) :
+	ControlElement(_box),
+	sub_box(box.position + Point(0.0, 0.0), 10.0, box.height),
+	is_grabed(0),
+	grab_pnt(0.0),
+	val(0.0)
+{
+	int i;
+	rect.setPosition(sub_box.position.x, sub_box.position.y);
+	rect.setSize(Vector2f(sub_box.width, sub_box.height));
+	rect.setFillColor(Color(40, 40, 40));
+	rect.setOutlineThickness(1.0);
+	rect.setOutlineColor(Color(128, 128, 128));
+	vline[0].color = Color(32, 128, 255);
+	vline[1].color = Color(32, 128, 255);
+	vline[2].color = Color(128, 128, 128);
+	vline[3].color = Color(128, 128, 128);
+	for (i = 0; i < 4; i++)
+	{
+		vline[i].position.y = (sub_box.getUp() + sub_box.getDown()) / 2;
+	}
+	vline[0].position.x = box.getLeft();
+	vline[1].position.x = sub_box.getLeft();
+	vline[2].position.x = sub_box.getRight();
+	vline[3].position.x = box.getRight();
+}
+
+Slider::~Slider()
+{
+}
+
+void Slider::update(WMInterfaceData& wm_dat, RenderWindow& window)
+{
+	Point mp = Mouse::getPosition(window);
+	if (sub_box.contains(mp))
+	{
+		if (wm_dat.now_lmp == 1)
+		{
+			if (wm_dat.prev_lmp == 0)
+			{
+				is_grabed = 1;
+				grab_pnt = mp.x;
+				grab_pnt -= sub_box.position.x;
+			}
+		}
+		else
+		{
+			setColor(Color(60, 60, 60)); //возможно заменить на прямое изменение цвета
+			is_grabed = 0;
+		}
+	}
+	else
+	{
+		if (wm_dat.now_lmp == 0)
+		{
+			is_grabed = 0;
+		}
+		setColor(Color(40, 40, 40));
+	}
+	if (is_grabed == 1)
+	{
+		setColor(Color(50, 50, 50));
+		float processed_position = mp.x - grab_pnt;
+		if (processed_position < box.position.x)
+		{
+			processed_position = box.position.x;
+			val = 0.0;
+		}
+		else if (processed_position > (box.getRight() - sub_box.width))
+		{
+			processed_position = box.getRight() - sub_box.width;
+			val = 1.0;
+		}
+		else
+		{
+			val = (processed_position - box.position.x) / (box.width - sub_box.width);
+		}
+		rect.setPosition(processed_position, rect.getPosition().y);
+		sub_box.setPosition(Point(processed_position, sub_box.position.y));
+		vline[1].position.x = sub_box.getLeft();
+		vline[2].position.x = sub_box.getRight();
+	}
+}
+
+void Slider::draw(RenderWindow& window)
+{
+	window.draw(vline, 2, PrimitiveType::LinesStrip);
+	window.draw(&vline[2], 2, PrimitiveType::LinesStrip);
+	window.draw(rect);
+}
+
+float Slider::getValue()
+{
+	return val;
+}
+
+void Slider::setColor(Color _color)
+{
+	rect.setFillColor(_color);
 }

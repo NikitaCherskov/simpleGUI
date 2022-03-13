@@ -62,6 +62,7 @@ public:
 	WMInterfaceData(); //сделать в конструкторе box зависимым от window
 	~WMInterfaceData();
 	BoundingBox box;
+	bool now_lmp;
 	bool prev_lmp;
 	bool mouse_inside;
 };
@@ -155,7 +156,6 @@ public:
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	void draw(RenderWindow& window);
 private:
-	Vertex v[5];
 	RectangleShape rect;
 	void setColor(Color _color);
 	void textUpdate();
@@ -186,6 +186,7 @@ public:
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	void draw(RenderWindow& window);
 private:
+	void textUpdate();
 	float getCut();
 	float getMax();
 	Point position;
@@ -194,4 +195,23 @@ private:
 	float max;
 	float* tied;
 	float prev_tied;
+};
+
+class Slider: public ControlElement
+{
+public:
+	Slider();
+	Slider(BoundingBox _box);
+	~Slider();
+	void update(WMInterfaceData& wm_dat, RenderWindow& window);
+	void draw(RenderWindow& window);
+	float getValue();
+private:
+	void setColor(Color _color);
+	float val;
+	float grab_pnt;
+	bool is_grabed;
+	BoundingBox sub_box;
+	RectangleShape rect;
+	Vertex vline[4];
 };

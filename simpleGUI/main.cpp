@@ -16,9 +16,13 @@ int main()
 	lbl = new Label(Point(300.0, 300.0), 10);
 	lbl->setString("1234567890abc");
 	NumericLabel* nlb;
-	float ftest = 11.22;
-	nlb = new NumericLabel(Point(200.0, 200.0), 2, 2, &ftest);
+	float ftest = 0.0;
+	nlb = new NumericLabel(Point(448.0, 202.0), 2, 4, &ftest);
+	Slider* sld;
+	BoundingBox box2(Point(500.0, 200.0), 200.0, 20.0);
+	sld = new Slider(box2);
 	//btn->setString("abobus");
+	exp.load(sld);
 	exp.load(btn);
 	exp.load(lbl);
 	exp.load(nlb);
@@ -37,7 +41,7 @@ int main()
 		window.clear();
 		exp.update();
 		exp.draw();
-		ftest += 0.01;
+		ftest = sld->getValue();
 		// Отрисовка окна
 		window.display();
 	}
