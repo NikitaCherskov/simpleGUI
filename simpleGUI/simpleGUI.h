@@ -2,7 +2,6 @@
 #include "SFML/Graphics.hpp"
 #include "DLLStructure.h"
 #include "line_functions.h"
-#include "mouseProcessor.h"
 #include <vector>
 
 using namespace sf;
@@ -18,6 +17,8 @@ class BoundingBox;
 class WMInterfaceData;
 class Label;
 class NumericLabel;
+class Slider;
+
 float round(float r, int after_comma);
 std::string ftos(float convering, int before_comma, int after_comma);
 
@@ -30,21 +31,29 @@ public:
 private:
 	Font roboto_reguar;
 };
-class BondingBox //переимнеовать в BoundingBox
+class BoundingBox //переимнеовать в BoundingBox
 {
 public:
-	BondingBox();
-	BondingBox(Point _ld, Point _ru);
-	~BondingBox();
+	BoundingBox();
+	BoundingBox(Point _position, float _width, float _height); //возможно поменять на _lu и _rd соответственно
+	~BoundingBox();
+	void move(Point _offset);
+	void setPosition(Point _position);
+	void setCenterPosition(Point _position);
 	bool contains(Point cnt);
+	float getLeft();
+	float getRight();
+	float getUp();
+	float getDown();
 	float getWidth();
 	float getHeight();
 	Point getRu();
 	Point getLu();
 	Point getLd();
 	Point getRd();
-	Point ru;
-	Point ld;
+	Point position;
+	float width;
+	float height;
 };
 
 class WMInterfaceData
@@ -52,7 +61,7 @@ class WMInterfaceData
 public:
 	WMInterfaceData(); //сделать в конструкторе box зависимым от window
 	~WMInterfaceData();
-	BondingBox box;
+	BoundingBox box;
 	bool prev_lmp;
 	bool mouse_inside;
 };
@@ -77,18 +86,18 @@ class Element //возможно сделать абстрактым этот класс (удалить определения из .
 {
 public:
 	Element();
-	Element(BondingBox _box);
+	Element(BoundingBox _box);
 	~Element();
 	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	virtual void draw(RenderWindow& window);
-	BondingBox box;
+	BoundingBox box;
 };
 
 class ElementsMenu :public Element
 {
 public:
 	ElementsMenu();
-	ElementsMenu(BondingBox _box); //возможно удалить такого рода конструкторы
+	ElementsMenu(BoundingBox _box); //возможно удалить такого рода конструкторы
 	~ElementsMenu();
 	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	virtual void draw(RenderWindow& window);
@@ -103,12 +112,12 @@ class ControlElement :public Element //возможно убрать промежуточный класс. для 
 {
 public:
 	ControlElement();
-	ControlElement(BondingBox _box);
+	ControlElement(BoundingBox _box);
 	~ControlElement();
 	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	virtual void draw(RenderWindow& window);
 protected:
-	BondingBox box; //возможно сделать открытым
+	BoundingBox box; //возможно сделать открытым
 };
 
 class TextElement
@@ -141,7 +150,7 @@ class Button :public ControlElement, public TextElement
 {
 public:
 	Button();
-	Button(BondingBox _box);
+	Button(BoundingBox _box);
 	~Button();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	void draw(RenderWindow& window);
@@ -150,7 +159,7 @@ private:
 	RectangleShape rect;
 	void setColor(Color _color);
 	void textUpdate();
-	void modelUpdate();
+	void modelUpdate(); //возможно переименовать в positionUpdate()
 };
 
 class Label :public ControlElement, public TextElement
@@ -167,7 +176,7 @@ private:
 	int symbol_max;
 };
 
-class NumericLabel :public ControlElement, public NumericTextElement
+class NumericLabel :public ControlElement, public NumericTextElement //тут не должно быть _box
 {
 public:
 	NumericLabel();

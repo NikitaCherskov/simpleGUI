@@ -9,8 +9,7 @@ int main()
 	RenderWindow window(VideoMode(1000, 1000), "SFML Works!");
 	Interface exp;
 	exp.setWindow(window);
-	BondingBox box1(Point(500.0, 520.0), Point(700.0, 500.0));
-	BondingBox box2(Point(500.0, 620.0), Point(700.0, 600.0));
+	BoundingBox box1(Point(500.0, 500.0), 200.0, 20.0);
 	Button* btn;
 	btn = new Button(box1);
 	Label* lbl;

@@ -67,24 +67,39 @@ const Font& Fonts::getRobotoRegular() const
 
 //BondingBox
 
-BondingBox::BondingBox() :
-	ld(0.0, 0.0),
-	ru(0.0, 0.0)
+BoundingBox::BoundingBox() :
+	position(0.0, 0.0)
 {
 }
 
-BondingBox::BondingBox(Point _ld, Point _ru) :
-	ld(_ld),
-	ru(_ru)
-{
-}
-
-BondingBox::~BondingBox()
+BoundingBox::BoundingBox(Point _position, float _width, float _height) :
+	position(_position),
+	width(_width),
+	height(_height)
 {}
 
-bool BondingBox::contains(Point cnt)
+BoundingBox::~BoundingBox()
+{}
+
+void BoundingBox::move(Point _offset)
 {
-	if (cnt.x > ld.x && cnt.x < ru.x && cnt.y > ru.y && cnt.y < ld.y)
+	position += _offset;
+}
+
+void BoundingBox::setPosition(Point _position)
+{
+	position = _position;
+}
+
+void BoundingBox::setCenterPosition(Point _position)
+{
+	position.x = _position.x - (width / 2.0);
+	position.y = _position.y - (height / 2.0);
+}
+
+bool BoundingBox::contains(Point cnt)
+{
+	if (cnt.x > getLeft() && cnt.x < getRight() && cnt.y > getUp() && cnt.y < getDown())
 	{
 		return 1;
 	}
@@ -94,34 +109,54 @@ bool BondingBox::contains(Point cnt)
 	}
 }
 
-float BondingBox::getWidth()
+float BoundingBox::getLeft()
 {
-	return ru.x - ld.x;
+	return position.x;
 }
 
-float BondingBox::getHeight()
+float BoundingBox::getRight()
 {
-	return ld.y - ru.y;
+	return position.x + width;
 }
 
-Point BondingBox::getRu()
+float BoundingBox::getUp()
 {
-	return ru;
+	return position.y;
 }
 
-Point BondingBox::getLu()
+float BoundingBox::getDown()
 {
-	return Point(ld.x, ru.y);
+	return position.y + height;
 }
 
-Point BondingBox::getLd()
+float BoundingBox::getWidth()
 {
-	return ld;
+	return width;
 }
 
-Point BondingBox::getRd()
+float BoundingBox::getHeight()
 {
-	return Point(ru.x, ld.y);
+	return height;
+}
+
+Point BoundingBox::getRu()
+{
+	return Point(position.x + width, position.y);
+}
+
+Point BoundingBox::getLu()
+{
+	return position;
+}
+
+Point BoundingBox::getLd()
+{
+	return Point(position.x, position.y + height);
+}
+
+Point BoundingBox::getRd()
+{
+	return Point(position.x + width, position.y + height);
 }
 
 
@@ -138,8 +173,8 @@ Interface::~Interface() //сделать в нем и меню удаление элементов
 void Interface::setWindow(RenderWindow& _window)
 {
 	window = &_window;
-	wm_dat.box.ld.y = _window.getSize().y; //  /!!!\ возможные будущие ошибки
-	wm_dat.box.ru.x = _window.getSize().x;
+	wm_dat.box.width = _window.getSize().y; //  /!!!\ возможные будущие ошибки
+	wm_dat.box.height = _window.getSize().x;
 }
 
 void Interface::update() //возможно сделать единовременное присвоение окна
@@ -181,7 +216,7 @@ Element::Element()
 {
 }
 
-Element::Element(BondingBox _box) :
+Element::Element(BoundingBox _box) :
 	box(_box)
 {
 }
@@ -204,7 +239,7 @@ void Element::draw(RenderWindow& window)
 WMInterfaceData::WMInterfaceData() :
 	prev_lmp(0),
 	mouse_inside(0),
-	box(Point(0.0, 0.0), Point(0.0, 0.0))
+	box(Point(0.0, 0.0), 0.0, 0.0)
 {
 }
 
@@ -219,7 +254,7 @@ ElementsMenu::ElementsMenu()
 {
 }
 
-ElementsMenu::ElementsMenu(BondingBox _box)
+ElementsMenu::ElementsMenu(BoundingBox _box)
 {
 	wm_dat.box = _box;
 }
@@ -271,7 +306,7 @@ ControlElement::ControlElement()
 {
 }
 
-ControlElement::ControlElement(BondingBox _box) :
+ControlElement::ControlElement(BoundingBox _box) :
 	box(_box)
 {
 }
@@ -368,12 +403,12 @@ Button::Button() //заполнить этот коструктор
 {
 }
 
-Button::Button(BondingBox _box) :
+Button::Button(BoundingBox _box) :
 	ControlElement(_box)
 {
 	textUpdate();
 	modelUpdate();
-	v[0].color = Color(128, 128, 128);
+	v[0].color = Color(128, 128, 128); //запихнуть в цикл
 	v[1].color = Color(128, 128, 128);
 	v[2].color = Color(128, 128, 128);
 	v[3].color = Color(128, 128, 128);
@@ -420,7 +455,7 @@ void Button::setColor(Color _color)
 
 void Button::textUpdate()
 {
-	text.setPosition(int(((box.ld.x + box.ru.x) / 2) - (text.getLocalBounds().width / 2)), int(((box.ld.y + box.ru.y) / 2) - (text.getLocalBounds().height / 1.5)));
+	text.setPosition(int(((box.getLd().x + box.getRu().x) / 2) - (text.getLocalBounds().width / 2)), int(((box.getLd().y + box.getRu().y) / 2) - (text.getLocalBounds().height / 1.5)));
 }
 
 void Button::modelUpdate()
