@@ -10,7 +10,7 @@ float round(float r, int after_comma)
 	}
 	return float(int(r * rank)) / rank;
 }
-std::string ftos(float convering, int before_comma, int after_comma) //возможно оптимизировать
+std::string ftos(float convering, int before_comma, int after_comma) //переименовать в автоматический, добавить отдельно для int и float
 {
 	int i;
 	std::string converted;
@@ -459,8 +459,8 @@ void Button::textUpdate()
 
 void Button::modelUpdate()
 {
-	rect.setPosition(box.getLu().x, box.getLu().y);
-	rect.setSize(Vector2f(box.getWidth(), box.getHeight()));
+	rect.setPosition(box.getLu().x + 1.0, box.getLu().y + 1.0);
+	rect.setSize(Vector2f(box.getWidth() - 2.0, box.getHeight() - 2.0));
 }
 
 Label::Label() //заполнить конструктор
@@ -588,8 +588,8 @@ Slider::Slider(BoundingBox _box) :
 	val(0.0)
 {
 	int i;
-	rect.setPosition(sub_box.position.x, sub_box.position.y);
-	rect.setSize(Vector2f(sub_box.width, sub_box.height));
+	rect.setPosition(sub_box.position.x + 1.0, sub_box.position.y + 1.0);
+	rect.setSize(Vector2f(sub_box.width - 2.0, sub_box.height - 2.0));
 	rect.setFillColor(Color(40, 40, 40));
 	rect.setOutlineThickness(1.0);
 	rect.setOutlineColor(Color(128, 128, 128));
@@ -623,6 +623,7 @@ void Slider::update(WMInterfaceData& wm_dat, RenderWindow& window)
 				is_grabed = 1;
 				grab_pnt = mp.x;
 				grab_pnt -= sub_box.position.x;
+				last_position = sub_box.position.x;
 			}
 		}
 		else
@@ -643,6 +644,10 @@ void Slider::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	{
 		setColor(Color(50, 50, 50));
 		float processed_position = mp.x - grab_pnt;
+		if ((mp.y - sub_box.getDown()) > 200.0 || (sub_box.getUp() - mp.y) > 200.0) //возможно поместить это в нужное место для оптимизации
+		{
+			processed_position = last_position;
+		}
 		if (processed_position < box.position.x)
 		{
 			processed_position = box.position.x;
@@ -657,7 +662,7 @@ void Slider::update(WMInterfaceData& wm_dat, RenderWindow& window)
 		{
 			val = (processed_position - box.position.x) / (box.width - sub_box.width);
 		}
-		rect.setPosition(processed_position, rect.getPosition().y);
+		rect.setPosition(processed_position + 1.0, rect.getPosition().y);
 		sub_box.setPosition(Point(processed_position, sub_box.position.y));
 		vline[1].position.x = sub_box.getLeft();
 		vline[2].position.x = sub_box.getRight();

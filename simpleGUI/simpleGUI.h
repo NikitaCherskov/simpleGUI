@@ -208,6 +208,7 @@ public:
 	float getValue();
 private:
 	void setColor(Color _color);
+	float last_position;
 	float val;
 	float grab_pnt;
 	bool is_grabed;

@@ -17,7 +17,7 @@ int main()
 	lbl->setString("1234567890abc");
 	NumericLabel* nlb;
 	float ftest = 0.0;
-	nlb = new NumericLabel(Point(448.0, 202.0), 2, 4, &ftest);
+	nlb = new NumericLabel(Point(450.0, 202.0), 2, 2, &ftest);
 	Slider* sld;
 	BoundingBox box2(Point(500.0, 200.0), 200.0, 20.0);
 	sld = new Slider(box2);
