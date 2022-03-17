@@ -685,3 +685,152 @@ void Slider::setColor(Color _color)
 {
 	rect.setFillColor(_color);
 }
+
+
+//TextBox
+
+TextBox::TextBox()
+{
+}
+
+TextBox::TextBox(BoundingBox _box, RenderWindow& window) :
+	ControlElement(BoundingBox(Point(500, 100), 200, 20)),
+	str("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtYuVvWwXxYyZz")
+{
+	txt.text.setFont(my_fonts.getRobotoRegular());
+	txt.text.setCharacterSize(14);
+	float sum_lenth, i;
+	rect.setPosition(box.getLu().x + 1.0, box.getLu().y + 1.0); //возможно добавить textUpdate()
+	rect.setSize(Vector2f(box.getWidth() - 2.0, box.getHeight() - 2.0));
+	rect.setOutlineThickness(1.0);
+	rect.setOutlineColor(Color(128, 128, 128));
+	/*
+	//with kerning:
+	for (sum_lenth = 0.0, i = 0; sum_lenth < (box.getWidth() * 1.5) || i < str.size(); sum_lenth += (my_fonts.getRobotoRegular().getGlyph(str[i], txt.getCharacterSize(), 0, 0.0).bounds.width - my_fonts.getRobotoRegular().getKerning(str[i], str[i + 1], txt.getCharacterSize())), i++)
+	{
+		std::cout << my_fonts.getRobotoRegular().getKerning(str[i], str[i + 1], txt.getCharacterSize());
+	}
+	*/
+	for (sum_lenth = 0.0, i = 0; sum_lenth < (box.getWidth() * 1.5) || i < str.size(); sum_lenth += my_fonts.getRobotoRegular().getGlyph(str[i], txt.text.getCharacterSize(), 0, 0.0).bounds.width, i++)
+	{}
+	txt.text.setString(str.substr(0, i));
+	txt.text.setPosition(5.0, int((box.height / 2.0) - (txt.text.getLocalBounds().height / 1.5)));
+	txt.textUpdate();
+	rend_txt.create(rect.getSize().x, rect.getSize().y);
+	rend_txt.clear();
+	rend_txt.draw(txt.text);
+	rend_txt.display();
+	rend_txt.setRepeated(1);
+	rect.setTexture(&rend_txt.getTexture());
+}
+
+TextBox::~TextBox()
+{
+}
+
+void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
+{
+	if (box.contains(Mouse::getPosition(window)))
+	{
+		if (wm_dat.now_lmp == 1)
+		{
+			if (wm_dat.prev_lmp == 0)
+			{
+			}
+		}
+		else
+		{
+		}
+		Point global_mp = Mouse::getPosition(window);
+		Point local_mp = global_mp - rect.getPosition();
+		txt.update(wm_dat, window, local_mp);
+	}
+	else
+	{
+	}
+}
+
+void TextBox::draw(RenderWindow& window)
+{
+	window.draw(rect);
+	window.draw(txt.text);
+}
+
+void TextBox::moveLeftTxt()
+{
+}
+
+void TextBox::moveRightTxt()
+{
+}
+
+void TextBox::moveLeftRect(int dist)
+{
+}
+
+void TextBox::moveRrightRect(int dist)
+{
+}
+
+
+//TextProcessor
+
+TextProcessor::TextProcessor()
+{
+}
+
+TextProcessor::~TextProcessor()
+{
+}
+
+void TextProcessor::update(WMInterfaceData& wm_dat, RenderWindow& window, Point local_mp)
+{
+	if (box.contains(local_mp))
+	{
+		if (wm_dat.now_lmp == 1)
+		{
+			if (wm_dat.prev_lmp == 0)
+			{
+				positionConverter(local_mp.x);
+			}
+		}
+		else
+		{
+		}
+	}
+	else
+	{
+	}
+}
+
+void TextProcessor::textUpdate()
+{
+	box.position = text.getPosition();
+	box.width = text.getGlobalBounds().width;
+	box.height = text.getGlobalBounds().height;
+}
+
+void TextProcessor::draw(RenderTarget& targer)
+{
+}
+
+void TextProcessor::positionConverter(float position) //возможно ускорить бинарным поиском
+{
+	int i, mini;
+	float symbol_position;
+	float minpos;
+	symbol_position = text.getPosition().x;
+	for (i = 0, mini = 0, minpos = text.getString()[0]; i < text.getString().getSize(); i++)
+	{
+		if (position < symbol_position)
+		{
+			hlposition = symbol_position;
+			hlcursor = i - 1;
+			return;
+		}
+		symbol_position += text.getFont()->getGlyph(text.getString()[i], text.getCharacterSize(), 0).bounds.width;
+	}
+	hlposition = symbol_position;
+	hlcursor = i - 1;
+	return;
+}

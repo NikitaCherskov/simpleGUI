@@ -18,9 +18,11 @@ class WMInterfaceData;
 class Label;
 class NumericLabel;
 class Slider;
+class TextProcessor;
 
 float round(float r, int after_comma);
 std::string ftos(float convering, int before_comma, int after_comma);
+
 
 class Fonts
 {
@@ -31,6 +33,7 @@ public:
 private:
 	Font roboto_reguar;
 };
+
 class BoundingBox //переимнеовать в BoundingBox
 {
 public:
@@ -65,6 +68,21 @@ public:
 	bool now_lmp;
 	bool prev_lmp;
 	bool mouse_inside;
+};
+
+class TextProcessor
+{
+public:
+	TextProcessor();
+	~TextProcessor();
+	void update(WMInterfaceData& wm_dat, RenderWindow& window, Point local_mp);
+	void textUpdate();
+	void draw(RenderTarget& targer);
+	void positionConverter(float position);
+	BoundingBox box;
+	Text text;
+	int hlcursor;
+	float hlposition;
 };
 
 class Interface
@@ -215,4 +233,28 @@ private:
 	BoundingBox sub_box;
 	RectangleShape rect;
 	Vertex vline[4];
+};
+
+class TextBox : public ControlElement
+{
+public:
+	TextBox();
+	TextBox(BoundingBox _box, RenderWindow& window);
+	~TextBox();
+	void update(WMInterfaceData& wm_dat, RenderWindow& window);
+	void draw(RenderWindow& window);
+private:
+	void moveLeftTxt();
+	void moveRightTxt();
+	void moveLeftRect(int dist);
+	void moveRrightRect(int dist);
+	bool is_grabed;
+	int move_amount;
+	std::string str;
+	//Sprite spr;
+	RenderTexture rend_txt;
+	Texture texture;
+	TextProcessor txt;
+	RectangleShape rect;
+	RectangleShape hl;
 };

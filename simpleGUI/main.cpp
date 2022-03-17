@@ -21,7 +21,11 @@ int main()
 	Slider* sld;
 	BoundingBox box2(Point(500.0, 200.0), 200.0, 20.0);
 	sld = new Slider(box2);
+	BoundingBox box3(Point(500.0, 100.0), 200.0, 20.0);
+	TextBox* tbx;
+	tbx = new TextBox(box3, window);
 	//btn->setString("abobus");
+	exp.load(tbx);
 	exp.load(sld);
 	exp.load(btn);
 	exp.load(lbl);
@@ -41,7 +45,7 @@ int main()
 		window.clear();
 		exp.update();
 		exp.draw();
-		ftest = sld->getValue();
+		ftest += 0.01;
 		// Отрисовка окна
 		window.display();
 	}
