@@ -6,7 +6,6 @@
 
 using namespace sf;
 
-class Fonts;
 class Interface;
 class Element;
 class ControlElement;
@@ -23,16 +22,6 @@ class TextProcessor;
 float round(float r, int after_comma);
 std::string ftos(float convering, int before_comma, int after_comma);
 
-
-class Fonts
-{
-public:
-	Fonts();
-	~Fonts();
-	const Font& getRobotoRegular() const;
-private:
-	Font roboto_reguar;
-};
 
 class BoundingBox //переимнеовать в BoundingBox
 {
@@ -58,6 +47,8 @@ public:
 	float width;
 	float height;
 };
+
+#include "Fonts.h"
 
 class WMInterfaceData
 {
@@ -246,9 +237,11 @@ public:
 private:
 	void moveLeftTxt();
 	void moveRightTxt();
-	void moveLeftRect(int dist);
-	void moveRrightRect(int dist);
+	void moveRect(float dist);
+	void textUpdate();
+	void textMovingUpdate();
 	bool is_grabed;
+	int front_loaded_symbol;
 	int move_amount;
 	std::string str;
 	//Sprite spr;

@@ -142,13 +142,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Fonts.cpp" />
     <ClCompile Include="line_functions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mouseProcessor.cpp" />
     <ClCompile Include="simpleGUI.cpp" />
+    <ClCompile Include="TextProcessor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DLLStructure.h" />
+    <ClInclude Include="Fonts.h" />
     <ClInclude Include="line_functions.h" />
     <ClInclude Include="mouseProcessor.h" />
     <ClInclude Include="simpleGUI.h" />

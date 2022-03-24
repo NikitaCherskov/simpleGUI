@@ -1,5 +1,7 @@
 #include "simpleGUI.h"
 
+Fonts my_fonts;
+
 float round(float r, int after_comma)
 {
 	int i;
@@ -47,21 +49,20 @@ std::string ftos(float convering, int before_comma, int after_comma) //переимено
 		return converted.substr(0, i + after_comma + 1);
 	}
 }
-
-//Fonts
-Fonts my_fonts;
-
-Fonts::Fonts()
+float boundVal(float b, float lb, float rb) //переменовать b в bound
 {
-	roboto_reguar.loadFromFile("Roboto-Regular.ttf");
-}
-Fonts::~Fonts()
-{
-}
-
-const Font& Fonts::getRobotoRegular() const
-{
-	return roboto_reguar;
+	if (b < lb)
+	{
+		return lb;
+	}
+	else if(b > rb)
+	{
+		return rb;
+	}
+	else
+	{
+		return b;
+	}
 }
 
 
@@ -695,7 +696,8 @@ TextBox::TextBox()
 
 TextBox::TextBox(BoundingBox _box, RenderWindow& window) :
 	ControlElement(BoundingBox(Point(500, 100), 200, 20)),
-	str("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtYuVvWwXxYyZz")
+	str("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtYuVvWwXxYyZzzzq"),
+	front_loaded_symbol(0)
 {
 	txt.text.setFont(my_fonts.getRobotoRegular());
 	txt.text.setCharacterSize(14);
@@ -711,15 +713,12 @@ TextBox::TextBox(BoundingBox _box, RenderWindow& window) :
 		std::cout << my_fonts.getRobotoRegular().getKerning(str[i], str[i + 1], txt.getCharacterSize());
 	}
 	*/
-	for (sum_lenth = 0.0, i = 0; sum_lenth < (box.getWidth() * 1.5) || i < str.size(); sum_lenth += my_fonts.getRobotoRegular().getGlyph(str[i], txt.text.getCharacterSize(), 0, 0.0).bounds.width, i++)
+	for (sum_lenth = 0.0, i = 0; sum_lenth < (box.getWidth() * 1.5) && i < str.size(); sum_lenth += my_fonts.getRobotoRegular().getGlyph(str[i], txt.text.getCharacterSize(), 0, 0.0).bounds.width, i++)
 	{}
 	txt.text.setString(str.substr(0, i));
 	txt.text.setPosition(5.0, int((box.height / 2.0) - (txt.text.getLocalBounds().height / 1.5)));
-	txt.textUpdate();
 	rend_txt.create(rect.getSize().x, rect.getSize().y);
-	rend_txt.clear();
-	rend_txt.draw(txt.text);
-	rend_txt.display();
+	textUpdate();
 	rend_txt.setRepeated(1);
 	rect.setTexture(&rend_txt.getTexture());
 }
@@ -736,14 +735,13 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 		{
 			if (wm_dat.prev_lmp == 0)
 			{
+				txt.update(wm_dat, window, Vector2f(Mouse::getPosition(window)) - rect.getPosition());
+				textMovingUpdate();
 			}
 		}
 		else
 		{
 		}
-		Point global_mp = Mouse::getPosition(window);
-		Point local_mp = global_mp - rect.getPosition();
-		txt.update(wm_dat, window, local_mp);
 	}
 	else
 	{
@@ -758,79 +756,69 @@ void TextBox::draw(RenderWindow& window)
 
 void TextBox::moveLeftTxt()
 {
+	int i;
+	float mov = 0.0;
+	float symbol_width;
+	for (i = front_loaded_symbol - 1; i >= 0 && mov < 30.0; i--)
+	{
+		symbol_width = txt.text.getFont()->getGlyph(txt.text.getString()[i], txt.text.getCharacterSize(), 0).bounds.width;
+		mov += symbol_width;
+	}
+	front_loaded_symbol = i + 1;
+	txt.text.move(Vector2f(-mov, 0.0));
+	txt.text.setString(str.substr(front_loaded_symbol, txt.text.getString().getSize())); //вынести size в класс
+	textUpdate();
 }
 
 void TextBox::moveRightTxt()
 {
-}
-
-void TextBox::moveLeftRect(int dist)
-{
-}
-
-void TextBox::moveRrightRect(int dist)
-{
-}
-
-
-//TextProcessor
-
-TextProcessor::TextProcessor()
-{
-}
-
-TextProcessor::~TextProcessor()
-{
-}
-
-void TextProcessor::update(WMInterfaceData& wm_dat, RenderWindow& window, Point local_mp)
-{
-	if (box.contains(local_mp))
+	int i;
+	float mov = 0.0;
+	float symbol_width;
+	for (i = 0; i < (str.size() - (txt.text.getString().getSize() + front_loaded_symbol)) && mov < 30.0; i++)
 	{
-		if (wm_dat.now_lmp == 1)
+		symbol_width = txt.text.getFont()->getGlyph(txt.text.getString()[i], txt.text.getCharacterSize(), 0).bounds.width;
+		mov += symbol_width;
+	}
+	front_loaded_symbol += i;
+	txt.text.move(Vector2f(mov, 0.0));
+	txt.text.setString(str.substr(front_loaded_symbol, txt.text.getString().getSize())); //вынести size в класс
+	textUpdate();
+}
+
+void TextBox::moveRect(float dist)
+{
+	dist = boundVal(dist, (rect.getGlobalBounds().width - 5.0) - (txt.text.getPosition().x + txt.text.getGlobalBounds().width), 5.0 - txt.text.getPosition().x);
+	txt.text.move(Vector2f(dist, 0.0));
+}
+
+void TextBox::textUpdate()
+{
+	txt.textUpdate();
+	rend_txt.clear(); //вынести в отдельную функцию
+	rend_txt.draw(txt.text);
+	rend_txt.display();
+}
+
+void TextBox::textMovingUpdate()
+{
+	float chosed_symbol_width = txt.text.getFont()->getGlyph(txt.text.getString()[txt.hlcursor], txt.text.getCharacterSize(), 0).advance;
+	if ((txt.hlposition + chosed_symbol_width + 15.0) > rect.getGlobalBounds().width)
+	{
+		moveRect(-chosed_symbol_width); //переименовать, т.к. двигается не совсем rect
+		if (txt.text.getPosition().x < -80.0)
 		{
-			if (wm_dat.prev_lmp == 0)
-			{
-				positionConverter(local_mp.x);
-			}
-		}
-		else
-		{
+			moveRightTxt();
 		}
 	}
-	else
+	else if (txt.hlposition < 15.0)
 	{
-	}
-}
-
-void TextProcessor::textUpdate()
-{
-	box.position = text.getPosition();
-	box.width = text.getGlobalBounds().width;
-	box.height = text.getGlobalBounds().height;
-}
-
-void TextProcessor::draw(RenderTarget& targer)
-{
-}
-
-void TextProcessor::positionConverter(float position) //возможно ускорить бинарным поиском
-{
-	int i, mini;
-	float symbol_position;
-	float minpos;
-	symbol_position = text.getPosition().x;
-	for (i = 0, mini = 0, minpos = text.getString()[0]; i < text.getString().getSize(); i++)
-	{
-		if (position < symbol_position)
+		moveRect(chosed_symbol_width); //переименовать, т.к. двигается не совсем rect
+		if (txt.text.getPosition().x > -20.0)
 		{
-			hlposition = symbol_position;
-			hlcursor = i - 1;
-			return;
+			moveLeftTxt();
 		}
-		symbol_position += text.getFont()->getGlyph(text.getString()[i], text.getCharacterSize(), 0).bounds.width;
 	}
-	hlposition = symbol_position;
-	hlcursor = i - 1;
-	return;
+	textUpdate();
+	//std::cout << (char)txt.text.getString()[txt.hlcursor] << ":" << txt.hlcursor << ":" << txt.text.getString().getSize() << "\n";
 }
