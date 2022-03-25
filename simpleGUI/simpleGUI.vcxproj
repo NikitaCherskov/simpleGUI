@@ -142,7 +142,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Fonts.cpp" />
+    <ClCompile Include="GUITimer.cpp" />
     <ClCompile Include="line_functions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mouseProcessor.cpp" />
@@ -150,12 +152,15 @@
     <ClCompile Include="TextProcessor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="DLLStructure.h" />
     <ClInclude Include="Fonts.h" />
+    <ClInclude Include="GUITimer.h" />
     <ClInclude Include="line_functions.h" />
     <ClInclude Include="mouseProcessor.h" />
     <ClInclude Include="simpleGUI.h" />
     <ClInclude Include="SLLStructure.h" />
+    <ClInclude Include="TextProcessor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

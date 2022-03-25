@@ -23,58 +23,25 @@ float round(float r, int after_comma);
 std::string ftos(float convering, int before_comma, int after_comma);
 
 
-class BoundingBox //переимнеовать в BoundingBox
-{
-public:
-	BoundingBox();
-	BoundingBox(Point _position, float _width, float _height); //возможно поменять на _lu и _rd соответственно
-	~BoundingBox();
-	void move(Point _offset);
-	void setPosition(Point _position);
-	void setCenterPosition(Point _position);
-	bool contains(Point cnt);
-	float getLeft();
-	float getRight();
-	float getUp();
-	float getDown();
-	float getWidth();
-	float getHeight();
-	Point getRu();
-	Point getLu();
-	Point getLd();
-	Point getRd();
-	Point position;
-	float width;
-	float height;
-};
 
+#include "GUITimer.h"
+#include "BoundingBox.h"
 #include "Fonts.h"
+#include "GUITimer.h"
 
 class WMInterfaceData
 {
 public:
 	WMInterfaceData(); //сделать в конструкторе box зависимым от window
 	~WMInterfaceData();
+	std::vector<Metronome> metronomes;
 	BoundingBox box;
 	bool now_lmp;
 	bool prev_lmp;
 	bool mouse_inside;
 };
 
-class TextProcessor
-{
-public:
-	TextProcessor();
-	~TextProcessor();
-	void update(WMInterfaceData& wm_dat, RenderWindow& window, Point local_mp);
-	void textUpdate();
-	void draw(RenderTarget& targer);
-	void positionConverter(float position);
-	BoundingBox box;
-	Text text;
-	int hlcursor;
-	float hlposition;
-};
+#include "TextProcessor.h"
 
 class Interface
 {
@@ -239,7 +206,7 @@ private:
 	void moveRightTxt();
 	void moveRect(float dist);
 	void textUpdate();
-	void textMovingUpdate();
+	void textMovingUpdate(RenderWindow& window);
 	bool is_grabed;
 	int front_loaded_symbol;
 	int move_amount;
@@ -247,7 +214,10 @@ private:
 	//Sprite spr;
 	RenderTexture rend_txt;
 	Texture texture;
-	TextProcessor txt;
+	TextProcessor txt; //перемещение отдельным механизмом
 	RectangleShape rect;
 	RectangleShape hl;
+	Metronome metr;
+	bool crsr_blnd;
+	float cursor_hl;
 };

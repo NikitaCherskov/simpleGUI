@@ -66,101 +66,6 @@ float boundVal(float b, float lb, float rb) //переменовать b в bound
 }
 
 
-//BondingBox
-
-BoundingBox::BoundingBox() :
-	position(0.0, 0.0)
-{
-}
-
-BoundingBox::BoundingBox(Point _position, float _width, float _height) :
-	position(_position),
-	width(_width),
-	height(_height)
-{}
-
-BoundingBox::~BoundingBox()
-{}
-
-void BoundingBox::move(Point _offset)
-{
-	position += _offset;
-}
-
-void BoundingBox::setPosition(Point _position)
-{
-	position = _position;
-}
-
-void BoundingBox::setCenterPosition(Point _position)
-{
-	position.x = _position.x - (width / 2.0);
-	position.y = _position.y - (height / 2.0);
-}
-
-bool BoundingBox::contains(Point cnt)
-{
-	if (cnt.x > getLeft() && cnt.x < getRight() && cnt.y > getUp() && cnt.y < getDown())
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-float BoundingBox::getLeft()
-{
-	return position.x;
-}
-
-float BoundingBox::getRight()
-{
-	return position.x + width;
-}
-
-float BoundingBox::getUp()
-{
-	return position.y;
-}
-
-float BoundingBox::getDown()
-{
-	return position.y + height;
-}
-
-float BoundingBox::getWidth()
-{
-	return width;
-}
-
-float BoundingBox::getHeight()
-{
-	return height;
-}
-
-Point BoundingBox::getRu()
-{
-	return Point(position.x + width, position.y);
-}
-
-Point BoundingBox::getLu()
-{
-	return position;
-}
-
-Point BoundingBox::getLd()
-{
-	return Point(position.x, position.y + height);
-}
-
-Point BoundingBox::getRd()
-{
-	return Point(position.x + width, position.y + height);
-}
-
-
 //Interface
 
 Interface::Interface()
@@ -176,6 +81,7 @@ void Interface::setWindow(RenderWindow& _window)
 	window = &_window;
 	wm_dat.box.width = _window.getSize().y; //  /!!!\ возможные будущие ошибки
 	wm_dat.box.height = _window.getSize().x;
+	wm_dat.metronomes.push_back(Metronome(30));
 }
 
 void Interface::update() //возможно сделать единовременное присвоение окна
@@ -191,6 +97,10 @@ void Interface::update() //возможно сделать единовременное присвоение окна
 	}
 	wm_dat.prev_lmp = wm_dat.now_lmp;
 	wm_dat.now_lmp = Mouse::isButtonPressed(Mouse::Button::Left);
+	for (i = 0; i < wm_dat.metronomes.size(); i++)
+	{
+		wm_dat.metronomes[i].update();
+	}
 	for (i = 0; i < elements.size(); i++)
 	{
 		elements[i]->update(wm_dat, *window);
@@ -697,7 +607,10 @@ TextBox::TextBox()
 TextBox::TextBox(BoundingBox _box, RenderWindow& window) :
 	ControlElement(BoundingBox(Point(500, 100), 200, 20)),
 	str("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtYuVvWwXxYyZzzzq"),
-	front_loaded_symbol(0)
+	front_loaded_symbol(0),
+	metr(500),
+	cursor_hl(0),
+	crsr_blnd(0)
 {
 	txt.text.setFont(my_fonts.getRobotoRegular());
 	txt.text.setCharacterSize(14);
@@ -731,12 +644,18 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
 	if (box.contains(Mouse::getPosition(window)))
 	{
+		//Cursor cursor;
+		//cursor.loadFromSystem(Cursor::Text);
+		//window.setMouseCursor(cursor);
 		if (wm_dat.now_lmp == 1)
 		{
 			if (wm_dat.prev_lmp == 0)
 			{
-				txt.update(wm_dat, window, Vector2f(Mouse::getPosition(window)) - rect.getPosition());
-				textMovingUpdate();
+			}
+			txt.update(wm_dat, window, Vector2f(Mouse::getPosition(window)) - rect.getPosition());
+			if (wm_dat.metronomes[0].getIsPassed() == 1)
+			{
+				textMovingUpdate(window);
 			}
 		}
 		else
@@ -745,6 +664,9 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	}
 	else
 	{
+		//Cursor cursor;
+		//cursor.loadFromSystem(Cursor::Arrow);
+		//window.setMouseCursor(cursor);
 	}
 }
 
@@ -752,18 +674,40 @@ void TextBox::draw(RenderWindow& window)
 {
 	window.draw(rect);
 	window.draw(txt.text);
+	metr.update();
+	if (metr.getIsPassed() == 1)
+	{
+		if (crsr_blnd == 1)
+		{
+			crsr_blnd = 0;
+		}
+		else
+		{
+			crsr_blnd = 1;
+		}
+	}
+	if (crsr_blnd == 1)
+	{
+		RectangleShape crsr;
+		crsr.setPosition(Vector2f(cursor_hl, txt.text.getPosition().y) + rect.getPosition());
+		crsr.setSize(Vector2f(2, 14));
+		crsr.setFillColor(Color(220, 220, 220, 220));
+		window.draw(crsr);
+	}
 }
 
 void TextBox::moveLeftTxt()
 {
-	int i;
+	int i, i2;
 	float mov = 0.0;
 	float symbol_width;
-	for (i = front_loaded_symbol - 1; i >= 0 && mov < 30.0; i--)
+	for (i = front_loaded_symbol - 1, i2 = 0; i >= 0 && mov < 30.0; i--, i2++)
 	{
 		symbol_width = txt.text.getFont()->getGlyph(txt.text.getString()[i], txt.text.getCharacterSize(), 0).bounds.width;
 		mov += symbol_width;
 	}
+	txt.first_hlcursor += i2;
+	//txt.first_hlposition += mov;
 	front_loaded_symbol = i + 1;
 	txt.text.move(Vector2f(-mov, 0.0));
 	txt.text.setString(str.substr(front_loaded_symbol, txt.text.getString().getSize())); //вынести size в класс
@@ -780,6 +724,8 @@ void TextBox::moveRightTxt()
 		symbol_width = txt.text.getFont()->getGlyph(txt.text.getString()[i], txt.text.getCharacterSize(), 0).bounds.width;
 		mov += symbol_width;
 	}
+	txt.first_hlcursor -= i;
+	//txt.first_hlposition -= mov;
 	front_loaded_symbol += i;
 	txt.text.move(Vector2f(mov, 0.0));
 	txt.text.setString(str.substr(front_loaded_symbol, txt.text.getString().getSize())); //вынести size в класс
@@ -794,26 +740,37 @@ void TextBox::moveRect(float dist)
 
 void TextBox::textUpdate()
 {
+	float l, r;
+	//std::cout << txt.first_hlcursor << ":" << txt.second_hlcursor << "\n";
+	txt.getHlBounds(&l, &r, &cursor_hl);
+	RectangleShape hightlight;
+	hightlight.setPosition(Vector2f(l, txt.text.getPosition().y));
+	hightlight.setSize(Vector2f(r - l, txt.text.getCharacterSize()));
+	hightlight.setFillColor(Color(10, 30, 128));
 	txt.textUpdate();
 	rend_txt.clear(); //вынести в отдельную функцию
+	rend_txt.draw(hightlight);
 	rend_txt.draw(txt.text);
 	rend_txt.display();
 }
 
-void TextBox::textMovingUpdate()
+void TextBox::textMovingUpdate(RenderWindow& window)
 {
-	float chosed_symbol_width = txt.text.getFont()->getGlyph(txt.text.getString()[txt.hlcursor], txt.text.getCharacterSize(), 0).advance;
-	if ((txt.hlposition + chosed_symbol_width + 15.0) > rect.getGlobalBounds().width)
+	float moving_dist;
+	float mouse_position = Mouse::getPosition(window).x - rect.getPosition().x;
+	if ((mouse_position + 25.0) > rect.getGlobalBounds().width)
 	{
-		moveRect(-chosed_symbol_width); //переименовать, т.к. двигается не совсем rect
+		moving_dist = ((mouse_position + 25.0) - rect.getGlobalBounds().width) / 7.0;
+		moveRect(-moving_dist); //переименовать, т.к. двигается не совсем rect
 		if (txt.text.getPosition().x < -80.0)
 		{
 			moveRightTxt();
 		}
 	}
-	else if (txt.hlposition < 15.0)
+	else if (mouse_position < 25.0)
 	{
-		moveRect(chosed_symbol_width); //переименовать, т.к. двигается не совсем rect
+		moving_dist = (25.0 - mouse_position) / 7.0;
+		moveRect(moving_dist); //переименовать, т.к. двигается не совсем rect
 		if (txt.text.getPosition().x > -20.0)
 		{
 			moveLeftTxt();
