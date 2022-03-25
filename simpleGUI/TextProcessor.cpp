@@ -10,7 +10,7 @@ TextProcessor::TextProcessor():
 TextProcessor::~TextProcessor()
 {
 }
-
+Metronome dbg(100);
 void TextProcessor::update(WMInterfaceData& wm_dat, RenderWindow& window, Point local_mp)
 {
 	if (wm_dat.now_lmp == 1)
@@ -120,4 +120,21 @@ void TextProcessor::getHlBounds(float* l, float* r, float* c)
 	}
 	*c = *where_write;
 	return;
+}
+
+void TextProcessor::move(Point distance)
+{
+	text_position += distance;
+	textPositionUpdate();
+}
+
+void TextProcessor::setPosition(Point distance)
+{
+	text_position = distance;
+	textPositionUpdate();
+}
+
+void TextProcessor::textPositionUpdate()
+{
+	text.setPosition(Vector2f((int)text_position.x, (int)text_position.y));
 }

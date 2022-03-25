@@ -690,13 +690,13 @@ void TextBox::draw(RenderWindow& window)
 	{
 		RectangleShape crsr;
 		crsr.setPosition(Vector2f(cursor_hl, txt.text.getPosition().y) + rect.getPosition());
-		crsr.setSize(Vector2f(2, 14));
-		crsr.setFillColor(Color(220, 220, 220, 220));
+		crsr.setSize(Vector2f(1, 14));
+		crsr.setFillColor(Color(230, 230, 230, 230));
 		window.draw(crsr);
 	}
 }
 
-void TextBox::moveLeftTxt()
+void TextBox::fullMoveLeft()
 {
 	int i, i2;
 	float mov = 0.0;
@@ -707,14 +707,15 @@ void TextBox::moveLeftTxt()
 		mov += symbol_width;
 	}
 	txt.first_hlcursor += i2;
+	txt.second_hlcursor += i2;
 	//txt.first_hlposition += mov;
 	front_loaded_symbol = i + 1;
-	txt.text.move(Vector2f(-mov, 0.0));
+	txt.move(Point(-mov, 0.0));
 	txt.text.setString(str.substr(front_loaded_symbol, txt.text.getString().getSize())); //вынести size в класс
 	textUpdate();
 }
 
-void TextBox::moveRightTxt()
+void TextBox::fullMoveRight()
 {
 	int i;
 	float mov = 0.0;
@@ -725,9 +726,10 @@ void TextBox::moveRightTxt()
 		mov += symbol_width;
 	}
 	txt.first_hlcursor -= i;
+	txt.second_hlcursor -= i;
 	//txt.first_hlposition -= mov;
 	front_loaded_symbol += i;
-	txt.text.move(Vector2f(mov, 0.0));
+	txt.move(Point(mov, 0.0));
 	txt.text.setString(str.substr(front_loaded_symbol, txt.text.getString().getSize())); //вынести size в класс
 	textUpdate();
 }
@@ -735,7 +737,7 @@ void TextBox::moveRightTxt()
 void TextBox::moveRect(float dist)
 {
 	dist = boundVal(dist, (rect.getGlobalBounds().width - 5.0) - (txt.text.getPosition().x + txt.text.getGlobalBounds().width), 5.0 - txt.text.getPosition().x);
-	txt.text.move(Vector2f(dist, 0.0));
+	txt.move(Point(dist, 0.0));
 }
 
 void TextBox::textUpdate()
@@ -764,7 +766,7 @@ void TextBox::textMovingUpdate(RenderWindow& window)
 		moveRect(-moving_dist); //переименовать, т.к. двигается не совсем rect
 		if (txt.text.getPosition().x < -80.0)
 		{
-			moveRightTxt();
+			fullMoveRight();
 		}
 	}
 	else if (mouse_position < 25.0)
@@ -773,7 +775,7 @@ void TextBox::textMovingUpdate(RenderWindow& window)
 		moveRect(moving_dist); //переименовать, т.к. двигается не совсем rect
 		if (txt.text.getPosition().x > -20.0)
 		{
-			moveLeftTxt();
+			fullMoveLeft();
 		}
 	}
 	textUpdate();

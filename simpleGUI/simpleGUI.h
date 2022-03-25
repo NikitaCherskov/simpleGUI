@@ -202,8 +202,8 @@ public:
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	void draw(RenderWindow& window);
 private:
-	void moveLeftTxt();
-	void moveRightTxt();
+	void fullMoveLeft();
+	void fullMoveRight();
 	void moveRect(float dist);
 	void textUpdate();
 	void textMovingUpdate(RenderWindow& window);
