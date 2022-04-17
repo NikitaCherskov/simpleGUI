@@ -29,6 +29,13 @@ std::string ftos(float convering, int before_comma, int after_comma);
 #include "Fonts.h"
 #include "GUITimer.h"
 
+class MouseData
+{
+public:
+	Point mp;
+	bool now_lmp;
+	bool prev_lmp;
+};
 class WMInterfaceData
 {
 public:
@@ -40,8 +47,6 @@ public:
 	bool prev_lmp;
 	bool mouse_inside;
 };
-
-#include "TextProcessor.h"
 
 class Interface
 {
@@ -193,31 +198,4 @@ private:
 	Vertex vline[4];
 };
 
-class TextBox : public ControlElement
-{
-public:
-	TextBox();
-	TextBox(BoundingBox _box, RenderWindow& window);
-	~TextBox();
-	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void draw(RenderWindow& window);
-private:
-	void fullMoveLeft();
-	void fullMoveRight();
-	void moveRect(float dist);
-	void textUpdate();
-	void textMovingUpdate(RenderWindow& window);
-	bool is_grabed;
-	int front_loaded_symbol;
-	int move_amount;
-	std::string str;
-	//Sprite spr;
-	RenderTexture rend_txt;
-	Texture texture;
-	TextProcessor txt; //перемещение отдельным механизмом
-	RectangleShape rect;
-	RectangleShape hl;
-	Metronome metr;
-	bool crsr_blnd;
-	float cursor_hl;
-};
+#include "TextBox.h"

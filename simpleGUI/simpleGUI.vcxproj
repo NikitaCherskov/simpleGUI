@@ -149,7 +149,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mouseProcessor.cpp" />
     <ClCompile Include="simpleGUI.cpp" />
-    <ClCompile Include="TextProcessor.cpp" />
+    <ClCompile Include="TextBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoundingBox.h" />
@@ -160,7 +160,7 @@
     <ClInclude Include="mouseProcessor.h" />
     <ClInclude Include="simpleGUI.h" />
     <ClInclude Include="SLLStructure.h" />
-    <ClInclude Include="TextProcessor.h" />
+    <ClInclude Include="TextBox.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
