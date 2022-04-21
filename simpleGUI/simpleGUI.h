@@ -22,7 +22,8 @@ class TextProcessor;
 float round(float r, int after_comma);
 std::string ftos(float convering, int before_comma, int after_comma);
 
-
+//йняршкэ
+const Font& getFont();
 
 #include "GUITimer.h"
 #include "BoundingBox.h"

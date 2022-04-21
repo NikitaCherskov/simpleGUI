@@ -50,6 +50,10 @@ std::string ftos(float convering, int before_comma, int after_comma) //переимено
 		return converted.substr(0, i + after_comma + 1);
 	}
 }
+const Font& getFont()
+{
+	return my_fonts.getRobotoRegular();
+}
 float boundVal(float b, float lb, float rb) //переменовать b в bound
 {
 	if (b < lb)

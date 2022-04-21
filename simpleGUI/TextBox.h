@@ -1,11 +1,34 @@
 #pragma once
 #include "simpleGUI.h"
+class SymbMark
+{
+public: 
+	SymbMark();
+	SymbMark(BoundingBox _box, int _num);
+	~SymbMark();
+	BoundingBox box;
+	int num;
+};
+class StrProc
+{
+public:
+	StrProc();
+	StrProc(const std::string& _str);
+	~StrProc();
+	void setString(const std::string& _str);
+	void posToBox(float position, BoundingBox* _box, int* _num);
+	BoundingBox numToBox(int num, BoundingBox* _box);
+private:
+	std::string str;
+	std::vector<SymbMark> marks;
+};
 class TbxMover
 {
 public:
 	TbxMover(const String* _str, BoundingBox _symb_box, int _symb_num, Point _base_pos);
+	TbxMover(const String* _str, Point _base_pos);
 	~TbxMover();
-	void fromPosition(Point position);
+	void fromPosition(float position);
 	void fromNum(int num);
 	void moveNext();
 	void movePrev();
@@ -17,7 +40,7 @@ public:
 	Point getBasePos();
 
 	void setStringPtr(const String* _str, BoundingBox _symb_box, int _symb_num);
-	void stringChanget(BoundingBox _symb_box, int _symb_num);
+	void stringChange(BoundingBox _symb_box, int _symb_num);
 
 	int getSymbNum();
 	BoundingBox getSymbBox();
@@ -27,31 +50,36 @@ public:
 private:
 	int symb_num;
 	BoundingBox symb_box;
-	String* str;
+	const String* str;
 	Point base_pos; 
 };
 class TbxProc
 {
 public:
-	TbxProc(const String _str, BoundingBox _box);
+	TbxProc(BoundingBox _box /*возможно это лишнее*/, const String& _str);
 	~TbxProc();
-	void update(MouseData md);
+	void update(BoundingBox _box, MouseData md);
+	void textureUpdate();
 //	RenderTexture& getTexture();
 //private:
 	TbxMover first_symb;
+	TbxMover first_hl;
+	TbxMover second_hl;
 	RenderTexture texture;
 	Text txt;
 	String str;
 };
-class TextBox
+class TextBox : public ControlElement
 {
 public:
-	TextBox();
-	TextBox(BoundingBox _box, const String _str);
+	//TextBox();
+	TextBox(BoundingBox _box, const String& _str);
 	~TextBox();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	void draw(RenderWindow& window);
 private:
-	TbxProc proc;
+	RectangleShape rect;
 	BoundingBox box;
+	TbxProc proc;
+	//BoundingBox box;
 };
