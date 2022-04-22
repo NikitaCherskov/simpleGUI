@@ -25,9 +25,11 @@ class StrProc
 {
 public:
 	StrProc();
+	StrProc(const String& _str);
 	~StrProc();
 	BoundingBox getFromNum(int num);
 	void getFromPos(float pos, BoundingBox* box_write = NULL, int* num_write = NULL);
+	//getCentringFromPos(...);
 	void updateMarks();
 	String str;
 private:
@@ -78,12 +80,14 @@ public:
 	void textureUpdate();
 //	RenderTexture& getTexture();
 //private:
-	TbxMover first_symb;
-	TbxMover first_hl;
-	TbxMover second_hl;
+	//TbxMover first_symb;
+	BoundingBox first_hl_box;
+	int first_hl_num;
+	BoundingBox second_hl_box;
+	int second_hl_num;
 	RenderTexture texture;
 	Text txt;
-	String str;
+	StrProc str;
 };
 class TextBox : public ControlElement
 {

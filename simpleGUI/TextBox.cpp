@@ -160,9 +160,11 @@ BoundingBox TbxMover::getSymbBox()
 
 TbxProc::TbxProc(BoundingBox _box, const String& _str) :
 	str(_str),
-	first_symb(&str, Point(0.0, 0.0)),
-	first_hl(first_symb),
-	second_hl(first_symb)
+	//first_symb(&(str.str), Point(0.0, 0.0)),
+	first_hl_box(Point(0.0, 0.0), getFont().getGlyph(_str[0], 14, 0).advance, 14.0),
+	second_hl_box(Point(0.0, 0.0), getFont().getGlyph(_str[0], 14, 0).advance, 14.0),
+	first_hl_num(0),
+	second_hl_num(0)
 {
 	texture.create(_box.width, _box.height);
 	txt.setCharacterSize(14);
@@ -185,11 +187,9 @@ void TbxProc::update(BoundingBox _box, MouseData md)
 	{
 		if (md.prev_lmp == 0)
 		{
-			first_hl = first_symb;
-			first_hl.fromPosition(md.mp.x + 3.0);
+			str.getFromPos(md.mp.x, &first_hl_box, &first_hl_num);
 		}
-		second_hl = first_symb;
-		second_hl.fromPosition(md.mp.x + 3.0);
+		str.getFromPos(md.mp.x, &second_hl_box, &second_hl_num);
 	}
 	else
 	{
@@ -201,15 +201,15 @@ void TbxProc::textureUpdate()
 {
 	float l, r, s;
 
-	if (first_hl.getSymbNum() < second_hl.getSymbNum())
+	if (first_hl_box.position.x < second_hl_box.position.x)
 	{
-		l = first_hl.getSymbBox().getLeft();
-		r = second_hl.getSymbBox().getLeft();
+		l = first_hl_box.position.x;
+		r = second_hl_box.position.x;
 	}
 	else
 	{
-		r = first_hl.getSymbBox().getLeft();
-		l = second_hl.getSymbBox().getLeft();
+		r = first_hl_box.position.x;
+		l = second_hl_box.position.x;
 	}
 	s = r - l;
 
@@ -219,9 +219,8 @@ void TbxProc::textureUpdate()
 	hl_rect.setFillColor(Color(0, 80, 160));
 
 	RectangleShape hl_cursor_rect(Vector2f(1.0, 14.0));
-	hl_cursor_rect.setPosition(Vector2f(second_hl.getSymbBox().getLeft(), 2.0));
+	hl_cursor_rect.setPosition(Vector2f(second_hl_box.position.x, 2.0));
 	hl_cursor_rect.setFillColor(Color(200, 200, 200));
-
 
 	texture.clear(Color::Black);
 	texture.draw(hl_rect);
@@ -353,6 +352,14 @@ StrProc::StrProc():
 {
 }
 
+StrProc::StrProc(const String& _str):
+	str(_str),
+	period_num(10),
+	period_pos(100.0)
+{
+	updateMarks();
+}
+
 StrProc::~StrProc()
 {
 }
@@ -389,15 +396,20 @@ void StrProc::getFromPos(float pos, BoundingBox* box_write, int* num_write)
 
 	for
 	(
-		i = old_num, cur_pos = 0.0;
+		i = old_num, cur_pos = symb_box.position.x;
 		cur_pos + getFont().getGlyph(str[i], 14, 0).advance < pos && i < str.getSize();
 		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
 	)
 	{
 	}
-
-	*box_write = BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
-	*num_write = i;
+	if (box_write != NULL)
+	{
+		*box_write = BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
+	}
+	if(num_write != NULL)
+	{
+		*num_write = i;
+	}
 }
 
 void StrProc::updateMarks()
@@ -420,7 +432,7 @@ void StrProc::updateMarks()
 			BoundingBox nbox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
 			symb_nums.push_back(numMark(nbox));
 		}
-		if (cur_pos + getFont().getGlyph(str[i], 14, 0).advance > target_pos)
+		if (cur_pos + getFont().getGlyph(str[i], 14, 0).advance > target_pos) //возможно убрать " + getFont().getGlyph(str[i], 14, 0).advance"
 		{
 			BoundingBox nbox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
 			symb_poses.push_back(posMark(nbox, i));
