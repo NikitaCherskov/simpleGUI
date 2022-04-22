@@ -1,27 +1,43 @@
 #pragma once
 #include "simpleGUI.h"
-class SymbMark
+
+
+class numMark
 {
-public: 
-	SymbMark();
-	SymbMark(BoundingBox _box, int _num);
-	~SymbMark();
-	BoundingBox box;
-	int num;
+public:
+	numMark();
+	numMark(BoundingBox _symb_box);
+	~numMark();
+	BoundingBox symb_box;
 };
+
+class posMark
+{
+public:
+	posMark();
+	posMark(BoundingBox _symb_box, int _symb_num);
+	~posMark();
+	BoundingBox symb_box;
+	int symb_num;
+};
+
 class StrProc
 {
 public:
 	StrProc();
-	StrProc(const std::string& _str);
 	~StrProc();
-	void setString(const std::string& _str);
-	void posToBox(float position, BoundingBox* _box, int* _num);
-	BoundingBox numToBox(int num, BoundingBox* _box);
+	BoundingBox getFromNum(int num);
+	void getFromPos(float pos, BoundingBox* box_write = NULL, int* num_write = NULL);
+	void updateMarks();
+	String str;
 private:
-	std::string str;
-	std::vector<SymbMark> marks;
+	std::vector<numMark> symb_nums;
+	std::vector<posMark> symb_poses;
+	int period_num;
+	float period_pos;
 };
+
+
 class TbxMover
 {
 public:

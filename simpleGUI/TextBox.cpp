@@ -307,23 +307,49 @@ void TextBox::draw(RenderWindow& window)
 	window.draw(txt);
 }
 
-SymbMark::SymbMark()
+
+//       //////////////////////////////////////////////////////////////////////////// ”–Œ¬≈Õ‹ 0 - › —œ≈–≈Ã≈Õ“¿À‹Õ€… ////////////////////////////////////////////////////////////////////////////
+
+
+
+
+numMark::numMark()
 {
 }
 
-SymbMark::SymbMark(BoundingBox _box, int _num)
+numMark::numMark(BoundingBox _symb_box):
+	symb_box(_symb_box)
 {
 }
 
-SymbMark::~SymbMark()
+numMark::~numMark()
 {
 }
 
-StrProc::StrProc()
+
+
+
+
+posMark::posMark()
+{
+}
+posMark::posMark(BoundingBox _symb_box, int _symb_num):
+	symb_box(_symb_box),
+	symb_num(_symb_num)
 {
 }
 
-StrProc::StrProc(const std::string& _str)
+posMark::~posMark()
+{
+}
+
+
+
+
+
+StrProc::StrProc():
+	period_num(10),
+	period_pos(100.0)
 {
 }
 
@@ -331,15 +357,74 @@ StrProc::~StrProc()
 {
 }
 
-void StrProc::setString(const std::string& _str)
+BoundingBox StrProc::getFromNum(int num)
 {
+	int i;
+	float cur_pos;
+
+	BoundingBox symb_box;
+	int old_num = num / period_num;
+	symb_box = symb_nums[old_num].symb_box;
+
+	for
+	(
+		i = old_num, cur_pos = 0.0;
+		i != num && i < str.getSize();
+		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
+	)
+	{}
+
+	return BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
 }
 
-void StrProc::posToBox(float position, BoundingBox* _box, int* _num)
+void StrProc::getFromPos(float pos, BoundingBox* box_write, int* num_write)
 {
+	int i;
+	float cur_pos;
+
+	BoundingBox symb_box;
+	int old_num;
+	symb_box = symb_poses[(int)(pos / period_pos)].symb_box;
+	old_num = symb_poses[(int)(pos / period_pos)].symb_num;
+
+	for
+	(
+		i = old_num, cur_pos = 0.0;
+		cur_pos + getFont().getGlyph(str[i], 14, 0).advance < pos && i < str.getSize();
+		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
+	)
+	{
+	}
+
+	*box_write = BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
+	*num_write = i;
 }
 
-BoundingBox StrProc::numToBox(int num, BoundingBox* _box)
+void StrProc::updateMarks()
 {
-	return BoundingBox();
+	symb_nums.clear();
+	symb_poses.clear();
+
+	int i;
+	float cur_pos;
+	float target_pos;
+	for
+	(
+		i = 0, cur_pos = 0.0, target_pos = 0.0;
+		i < str.getSize();
+		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
+	)
+	{
+		if (i % period_num == 0)
+		{
+			BoundingBox nbox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
+			symb_nums.push_back(numMark(nbox));
+		}
+		if (cur_pos + getFont().getGlyph(str[i], 14, 0).advance > target_pos)
+		{
+			BoundingBox nbox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
+			symb_poses.push_back(posMark(nbox, i));
+			target_pos += period_pos;
+		}
+	}
 }
