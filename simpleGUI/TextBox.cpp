@@ -162,7 +162,7 @@ float fixInternalBounds(float internalPos, float internalWidth, float outerPos, 
 {
 	if ((internalPos + internalWidth) > (outerPos + outerWidth))
 	{
-		internalPos -= (internalPos + internalWidth) - (outerPos + outerWidth);
+		internalPos = (outerPos + outerWidth) - internalWidth;
 	}
 	if (internalPos < outerPos)
 	{
@@ -212,10 +212,10 @@ void TbxProc::update(BoundingBox _box, MouseData md)
 	{
 		if (md.prev_lmp == 0)
 		{
-			str.getFromPos(md.mp.x, &first_hl_box, &first_hl_num);
+			str.getFromPos(md.mp.x + viewPos, &first_hl_box, &first_hl_num);
 			//std::cout << first_hl_num;
 		}
-		str.getFromPos(md.mp.x, &second_hl_box, &second_hl_num);
+		str.getFromPos(md.mp.x + viewPos, &second_hl_box, &second_hl_num);
 		if (_box.width - md.mp.x < 20.0)
 		{
 			moveView(0.1);
@@ -237,13 +237,13 @@ void TbxProc::textureUpdate()
 
 	if (first_hl_box.position.x < second_hl_box.position.x)
 	{
-		l = first_hl_box.position.x;
-		r = second_hl_box.position.x;
+		l = first_hl_box.position.x - viewPos;
+		r = second_hl_box.position.x - viewPos;
 	}
 	else
 	{
-		r = first_hl_box.position.x;
-		l = second_hl_box.position.x;
+		r = first_hl_box.position.x - viewPos;
+		l = second_hl_box.position.x - viewPos;
 	}
 	s = r - l;
 
@@ -253,7 +253,7 @@ void TbxProc::textureUpdate()
 	hl_rect.setFillColor(Color(0, 80, 160));
 
 	RectangleShape hl_cursor_rect(Vector2f(1.0, 14.0));
-	hl_cursor_rect.setPosition(Vector2f(second_hl_box.position.x, 2.0));
+	hl_cursor_rect.setPosition(Vector2f(second_hl_box.position.x - viewPos, 2.0));
 	hl_cursor_rect.setFillColor(Color(200, 200, 200));
 
 	texture.clear(Color::Black);
@@ -286,11 +286,13 @@ void TbxProc::setViewPos(float x)
 
 void TbxProc::updateViews()
 {
-	txt.setPosition(Vector2f((int)(txtPos - viewPos), 0.0));
 	int l, r;
-	str.getFromPos(txtPos, NULL, &l);
+	BoundingBox nTxtPox;
+	str.getFromPos(txtPos, &nTxtPox, &l);
 	str.getFromPos(txtPos + txtWidth, NULL, &r);
 	txt.setString(str.str.substring(l, r - l));
+	txt.setPosition(Vector2f((int)nTxtPox.position.x - (int)viewPos, 0.0));
+	std::cout << (int)nTxtPox.position.x << " : " << (int)viewPos << "\n";
 }
 
 
