@@ -2,7 +2,7 @@
 
 
 //TbxMover////////////////////////////////////////////////////////////////// ÓÐÎÂÅÜ 3 - ÎÁÐÀÁÎÒÊÀ ÏÅÐÅÌÅÙÅÍÈÉ ÒÅÊÑÒÀ //////////////////////////////////////////////////////////////////////////////////
-
+/*
 TbxMover::TbxMover(const String* _str, BoundingBox _symb_box, int _symb_num, Point _base_pos) :
 	str(_str), symb_box(_symb_box), symb_num(_symb_num), base_pos(_base_pos)
 {
@@ -154,9 +154,30 @@ BoundingBox TbxMover::getSymbBox()
 {
 	return symb_box;
 }
-
+*/
 
 //TbxProc///////////////////////////////////////////////////////// ÓÐÎÂÅÍÜ 2 - ÎÁÐÀÁÎÒÊÀ ÂÇÀÈÌÎÄÅÉÑÒÂÈÉ (ÏÅÐÅÌÅÙÅÍÈÅ, ÄÎÁÀÂËÅÍÈÅ, ÓÄÀËÅÍÈÅ) ///////////////////////////////////////////////////////////
+
+float fixInternalBounds(float internalPos, float internalWidth, float outerPos, float outerWidth)
+{
+	if ((internalPos + internalWidth) > (outerPos + outerWidth))
+	{
+		internalPos -= (internalPos + internalWidth) - (outerPos + outerWidth);
+	}
+	if (internalPos < outerPos)
+	{
+		internalPos = outerPos;
+	}
+	return internalPos;
+}
+float loadTxtBounds(float viewPos, float viewWidth, float txtPos, float txtWidth)
+{
+	if ((viewPos + viewWidth) > (txtPos + txtWidth) || viewPos < txtPos)
+	{
+		txtPos = viewPos + (viewWidth / 2.0) - (txtWidth / 2.0);
+	}
+	return txtPos;
+}
 
 TbxProc::TbxProc(BoundingBox _box, const String& _str) :
 	str(_str),
@@ -164,22 +185,26 @@ TbxProc::TbxProc(BoundingBox _box, const String& _str) :
 	first_hl_box(Point(0.0, 0.0), getFont().getGlyph(_str[0], 14, 0).advance, 14.0),
 	second_hl_box(Point(0.0, 0.0), getFont().getGlyph(_str[0], 14, 0).advance, 14.0),
 	first_hl_num(0),
-	second_hl_num(0)
+	second_hl_num(0),
+
+	strPos(0.0), txtPos(0.0), viewPos(0.0)
 {
 	texture.create(_box.width, _box.height);
 	txt.setCharacterSize(14);
 	txt.setFont(getFont());
 	txt.setString(_str);
 	//txt.setPosition(5.0, 0.0);
-
 	textureUpdate();
+
+	strWidth = str.getFromNum(str.str.getSize() - 1).getRight();
+	viewWidth = _box.getWidth();
+	txtWidth = viewWidth * 2.0;
+	//std::cout << strWidth << " " << txt.findCharacterPos(str.str.getSize() - 1).x;
 }
 
 TbxProc::~TbxProc()
 {
 }
-
-
 
 void TbxProc::update(BoundingBox _box, MouseData md)
 {
@@ -188,8 +213,17 @@ void TbxProc::update(BoundingBox _box, MouseData md)
 		if (md.prev_lmp == 0)
 		{
 			str.getFromPos(md.mp.x, &first_hl_box, &first_hl_num);
+			//std::cout << first_hl_num;
 		}
 		str.getFromPos(md.mp.x, &second_hl_box, &second_hl_num);
+		if (_box.width - md.mp.x < 20.0)
+		{
+			moveView(0.1);
+		}
+		else if (md.mp.x  < 20.0)
+		{
+			moveView(-0.1);
+		}
 	}
 	else
 	{
@@ -227,6 +261,36 @@ void TbxProc::textureUpdate()
 	texture.draw(hl_cursor_rect);
 	texture.draw(txt);
 	texture.display();
+}
+
+void TbxProc::moveView(float x)
+{
+	viewPos += x;
+	/*
+	float timedTxtPos = loadTxtBounds(viewPos, viewWidth, txtPos, txtWidth);
+	timedTxtPos = fixInternalBounds(txtPos, txtWidth, strPos, strWidth);
+	if (timedTxtPos != 0)
+	{
+		std::cout << "a";
+	}
+	*/
+	txtPos = loadTxtBounds(viewPos, viewWidth, txtPos, txtWidth);
+	txtPos = fixInternalBounds(txtPos, txtWidth, strPos, strWidth);
+	viewPos = fixInternalBounds(viewPos, viewWidth, txtPos, txtWidth);
+	updateViews();
+}
+
+void TbxProc::setViewPos(float x)
+{
+}
+
+void TbxProc::updateViews()
+{
+	txt.setPosition(Vector2f((int)(txtPos - viewPos), 0.0));
+	int l, r;
+	str.getFromPos(txtPos, NULL, &l);
+	str.getFromPos(txtPos + txtWidth, NULL, &r);
+	txt.setString(str.str.substring(l, r - l));
 }
 
 
@@ -301,9 +365,23 @@ void TextBox::draw(RenderWindow& window)
 
 
 	Text txt = proc.txt;
-	txt.move(300.0, 0.0);
-
+	txt.move(0.0, 0.0);
 	window.draw(txt);
+
+	RectangleShape hl_cursor_rect(Vector2f(1.0, 14.0));
+	hl_cursor_rect.setFillColor(Color(200, 64, 64));
+	hl_cursor_rect.setPosition(Vector2f(proc.strWidth + proc.strPos, 2.0));
+	window.draw(hl_cursor_rect);
+	hl_cursor_rect.setPosition(Vector2f(proc.viewWidth + proc.viewPos, 2.0));
+	window.draw(hl_cursor_rect);
+	hl_cursor_rect.setPosition(Vector2f(proc.txtWidth + proc.txtPos, 2.0));
+	window.draw(hl_cursor_rect);
+	hl_cursor_rect.setPosition(Vector2f(proc.strPos, 2.0));
+	window.draw(hl_cursor_rect);
+	hl_cursor_rect.setPosition(Vector2f(proc.viewPos, 2.0));
+	window.draw(hl_cursor_rect);
+	hl_cursor_rect.setPosition(Vector2f(proc.txtPos, 2.0));
+	window.draw(hl_cursor_rect);
 }
 
 
@@ -375,7 +453,7 @@ BoundingBox StrProc::getFromNum(int num)
 
 	for
 	(
-		i = old_num, cur_pos = 0.0;
+		i = old_num * period_num, cur_pos = symb_box.position.x;
 		i != num && i < str.getSize();
 		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
 	)
@@ -396,7 +474,7 @@ void StrProc::getFromPos(float pos, BoundingBox* box_write, int* num_write)
 
 	for
 	(
-		i = old_num, cur_pos = symb_box.position.x;
+		i = old_num, cur_pos = symb_box.position.x; //Ñëåâà íåïðîâåðåííîå èñïðàâëåíèå
 		cur_pos + getFont().getGlyph(str[i], 14, 0).advance < pos && i < str.getSize();
 		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
 	)

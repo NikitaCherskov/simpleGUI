@@ -39,7 +39,7 @@ private:
 	float period_pos;
 };
 
-
+/*
 class TbxMover
 {
 public:
@@ -71,6 +71,7 @@ private:
 	const String* str;
 	Point base_pos; 
 };
+*/
 class TbxProc
 {
 public:
@@ -78,13 +79,25 @@ public:
 	~TbxProc();
 	void update(BoundingBox _box, MouseData md);
 	void textureUpdate();
+	void moveView(float x);
+	void setViewPos(float x);
+	void updateViews();
 //	RenderTexture& getTexture();
 //private:
 	//TbxMover first_symb;
+
 	BoundingBox first_hl_box;
 	int first_hl_num;
 	BoundingBox second_hl_box;
 	int second_hl_num;
+
+	float strPos;
+	float strWidth;
+	float txtPos;
+	float txtWidth;
+	float viewPos;
+	float viewWidth;
+
 	RenderTexture texture;
 	Text txt;
 	StrProc str;
