@@ -231,6 +231,39 @@ void TbxProc::update(BoundingBox _box, MouseData md)
 	textureUpdate();
 }
 
+void TbxProc::backspaceEvent()
+{
+	int l, r, s;
+	if (first_hl_num < second_hl_num)
+	{
+		l = first_hl_num;
+		r = second_hl_num;
+	}
+	else
+	{
+		r = first_hl_num;
+		l = second_hl_num;
+	}
+	if (l == r)
+	{
+		if (l != 0)
+		{
+			BoundingBox first_del = str.getFromNum(l - 1);
+			str.deleteSymbols(l - 1, 1);
+			first_hl_num = l - 1;
+			first_hl_box = str.getFromNum(l - 1);
+			second_hl_num = first_hl_num;
+			second_hl_box = first_hl_box;
+			if (first_hl_box.getLeft() < viewPos)
+			{
+				setViewPos(first_hl_box.getLeft());
+			}
+			updateViews();
+			textureUpdate();
+		}
+	}
+}
+
 void TbxProc::textureUpdate()
 {
 	float l, r, s;
@@ -282,6 +315,11 @@ void TbxProc::moveView(float x)
 
 void TbxProc::setViewPos(float x)
 {
+	viewPos = x;
+	txtPos = loadTxtBounds(viewPos, viewWidth, txtPos, txtWidth);
+	txtPos = fixInternalBounds(txtPos, txtWidth, strPos, strWidth);
+	viewPos = fixInternalBounds(viewPos, viewWidth, txtPos, txtWidth);
+	updateViews();
 }
 
 void TbxProc::updateViews()
@@ -292,7 +330,7 @@ void TbxProc::updateViews()
 	str.getFromPos(txtPos + txtWidth, NULL, &r);
 	txt.setString(str.str.substring(l, r - l));
 	txt.setPosition(Vector2f((int)nTxtPox.position.x - (int)viewPos, 0.0));
-	std::cout << (int)nTxtPox.position.x << " : " << (int)viewPos << "\n";
+	//std::cout << (int)nTxtPox.position.x << " : " << (int)viewPos << "\n";
 }
 
 
@@ -349,9 +387,24 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 		{
 		}
 	}
+	int l, r, s; //заменить на более изящное использование уже вычисленной области выделения
+
+	if (proc.first_hl_num < proc.second_hl_num)
+	{
+		l = proc.first_hl_num;
+		r = proc.second_hl_num;
+	}
 	else
 	{
+		r = proc.first_hl_num;
+		l = proc.second_hl_num;
 	}
+	s = r - l + 1;
+	if (Keyboard::isKeyPressed(Keyboard::BackSpace) == 1)
+	{
+		proc.backspaceEvent();
+	}
+	//if(getAs)
 }
 
 void TextBox::draw(RenderWindow& window)
@@ -471,8 +524,13 @@ void StrProc::getFromPos(float pos, BoundingBox* box_write, int* num_write)
 
 	BoundingBox symb_box;
 	int old_num;
-	symb_box = symb_poses[(int)(pos / period_pos)].symb_box;
-	old_num = symb_poses[(int)(pos / period_pos)].symb_num;
+	int pos_ind = (int)(pos / period_pos);
+	if (pos_ind >= symb_poses.size())
+	{
+		pos_ind = symb_poses.size() - 1;
+	}
+	symb_box = symb_poses[pos_ind].symb_box;
+	old_num = symb_poses[pos_ind].symb_num;
 
 	for
 	(
@@ -490,6 +548,13 @@ void StrProc::getFromPos(float pos, BoundingBox* box_write, int* num_write)
 	{
 		*num_write = i;
 	}
+}
+
+void StrProc::deleteSymbols(int _pos, int _size)
+{
+	str.erase(_pos, _size);
+	updateMarks();
+	//std::cout << str.getSize() << ":" << symb_nums.size() << ":" << symb_poses.size() << "\n";
 }
 
 void StrProc::updateMarks()
