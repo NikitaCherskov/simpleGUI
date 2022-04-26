@@ -328,8 +328,16 @@ void TbxProc::updateViews()
 	BoundingBox nTxtPox;
 	str.getFromPos(txtPos, &nTxtPox, &l);
 	str.getFromPos(txtPos + txtWidth, NULL, &r);
-	txt.setString(str.str.substring(l, r - l));
-	txt.setPosition(Vector2f((int)nTxtPox.position.x - (int)viewPos, 0.0));
+	if (str.str.getSize() == 0)
+	{
+		txt.setString("");
+		txt.setPosition(Vector2f((int)nTxtPox.position.x - (int)viewPos, 0.0));
+	}
+	else
+	{
+		txt.setString(str.str.substring(l, r - l + 1));
+		txt.setPosition(Vector2f((int)nTxtPox.position.x - (int)viewPos, 0.0));
+	}
 	//std::cout << (int)nTxtPox.position.x << " : " << (int)viewPos << "\n";
 }
 
@@ -502,51 +510,84 @@ BoundingBox StrProc::getFromNum(int num)
 	int i;
 	float cur_pos;
 
-	BoundingBox symb_box;
-	int old_num = num / period_num;
-	symb_box = symb_nums[old_num].symb_box;
+	if (symb_nums.size() == 0)
+	{
+		return BoundingBox(Point(0.0, 0.0), 0.0, 14.0);
+	}
+	else
+	{
+		BoundingBox symb_box;
+		int old_num = num / period_num;
+		if (old_num > symb_nums.size() - 1)
+		{
+			old_num = symb_nums.size() - 1;
+		}
+		else if (old_num < 0)
+		{
+			old_num = 0;
+		}
+		symb_box = symb_nums[old_num].symb_box;
 
-	for
-	(
-		i = old_num * period_num, cur_pos = symb_box.position.x;
-		i != num && i < str.getSize();
-		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
-	)
-	{}
+		for
+		(
+			i = old_num * period_num, cur_pos = symb_box.position.x;
+			i != num && i < str.getSize();
+			cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
+		)
+		{
+		}
 
-	return BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
+		return BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
+	}
 }
 
 void StrProc::getFromPos(float pos, BoundingBox* box_write, int* num_write)
 {
 	int i;
 	float cur_pos;
+	if (symb_poses.size() == 0)
+	{
+		if (box_write != NULL)
+		{
+			*box_write = BoundingBox(Point(0.0, 0.0), 0.0, 14.0);
+		}
+		if (num_write != NULL)
+		{
+			*num_write = 0;
+		}
+	}
+	else
+	{
+		BoundingBox symb_box;
+		int old_num;
+		int pos_ind = (int)(pos / period_pos);
+		if (pos_ind > symb_poses.size() - 1)
+		{
+			pos_ind = symb_poses.size() - 1;
+		}
+		if (pos_ind < 0)
+		{
+			pos_ind = 0;
+		}
+		symb_box = symb_poses[pos_ind].symb_box;
+		old_num = symb_poses[pos_ind].symb_num;
 
-	BoundingBox symb_box;
-	int old_num;
-	int pos_ind = (int)(pos / period_pos);
-	if (pos_ind >= symb_poses.size())
-	{
-		pos_ind = symb_poses.size() - 1;
-	}
-	symb_box = symb_poses[pos_ind].symb_box;
-	old_num = symb_poses[pos_ind].symb_num;
-
-	for
-	(
-		i = old_num, cur_pos = symb_box.position.x; //Слева непроверенное исправление
-		cur_pos + getFont().getGlyph(str[i], 14, 0).advance < pos && i < str.getSize();
-		cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
-	)
-	{
-	}
-	if (box_write != NULL)
-	{
-		*box_write = BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
-	}
-	if(num_write != NULL)
-	{
-		*num_write = i;
+		for
+			(
+				i = old_num, cur_pos = symb_box.position.x; //Слева непроверенное исправление
+				cur_pos + getFont().getGlyph(str[i], 14, 0).advance < pos && i < str.getSize();
+				cur_pos += getFont().getGlyph(str[i], 14, 0).advance, i++
+				)
+		{
+		}
+		if (box_write != NULL)
+		{
+			*box_write = BoundingBox(Point(cur_pos, 0.0), getFont().getGlyph(str[i], 14, 0).advance, 14.0);
+		}
+		if (num_write != NULL)
+		{
+			*num_write = i;
+		}
 	}
 }
 
