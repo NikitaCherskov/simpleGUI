@@ -3,21 +3,21 @@
 #include "GUITimer.h"
 
 
-class numMark
+class NumMark
 {
 public:
-	numMark();
-	numMark(BoundingBox _symb_box);
-	~numMark();
+	NumMark();
+	NumMark(BoundingBox _symb_box);
+	~NumMark();
 	BoundingBox symb_box;
 };
 
-class posMark
+class PosMark
 {
 public:
-	posMark();
-	posMark(BoundingBox _symb_box, int _symb_num);
-	~posMark();
+	PosMark();
+	PosMark(BoundingBox _symb_box, int _symb_num);
+	~PosMark();
 	BoundingBox symb_box;
 	int symb_num;
 };
@@ -35,45 +35,12 @@ public:
 	void updateMarks();
 	String str;
 private:
-	std::vector<numMark> symb_nums;
-	std::vector<posMark> symb_poses;
+	std::vector<NumMark> symb_nums;
+	std::vector<PosMark> symb_poses;
 	int period_num;
 	float period_pos;
 };
 
-/*
-class TbxMover
-{
-public:
-	TbxMover(const String* _str, BoundingBox _symb_box, int _symb_num, Point _base_pos);
-	TbxMover(const String* _str, Point _base_pos);
-	~TbxMover();
-	void fromPosition(float position);
-	void fromNum(int num);
-	void moveNext();
-	void movePrev();
-	void moveFromNum(int amount = 1);
-	void moveFromDist(float dist);
-
-
-	void setBasePos(Point _base_pos);
-	Point getBasePos();
-
-	void setStringPtr(const String* _str, BoundingBox _symb_box, int _symb_num);
-	void stringChange(BoundingBox _symb_box, int _symb_num);
-
-	int getSymbNum();
-	BoundingBox getSymbBox();
-
-
-	//void strChanget(BoundingBox _symb_box, int _symb_num);
-private:
-	int symb_num;
-	BoundingBox symb_box;
-	const String* str;
-	Point base_pos; 
-};
-*/
 class TbxProc
 {
 public:
@@ -95,12 +62,12 @@ public:
 	BoundingBox second_hl_box;
 	int second_hl_num;
 
-	float strPos;
-	float strWidth;
-	float txtPos;
-	float txtWidth;
-	float viewPos;
-	float viewWidth;
+	float str_pos;
+	float str_width;
+	float txt_pos;
+	float txt_width;
+	float view_pos;
+	float view_width;
 
 	RenderTexture texture;
 	Text txt;
