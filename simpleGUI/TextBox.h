@@ -1,5 +1,6 @@
 #pragma once
 #include "simpleGUI.h"
+#include "GUITimer.h"
 
 
 class numMark
@@ -78,7 +79,8 @@ class TbxProc
 public:
 	TbxProc(BoundingBox _box /*возможно это лишнее*/, const String& _str);
 	~TbxProc();
-	void update(BoundingBox _box, MouseData md);
+	void mouseEvent(BoundingBox _box, MouseData md);
+	void mandatoryUpdate();
 	void backspaceEvent();
 	void textureUpdate();
 	void moveView(float x);
@@ -103,6 +105,7 @@ public:
 	RenderTexture texture;
 	Text txt;
 	StrProc str;
+	Metronome del_metr;
 };
 class TextBox : public ControlElement
 {

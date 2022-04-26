@@ -186,6 +186,7 @@ TbxProc::TbxProc(BoundingBox _box, const String& _str) :
 	second_hl_box(Point(0.0, 0.0), getFont().getGlyph(_str[0], 14, 0).advance, 14.0),
 	first_hl_num(0),
 	second_hl_num(0),
+	del_metr(200),
 
 	strPos(0.0), txtPos(0.0), viewPos(0.0)
 {
@@ -206,7 +207,7 @@ TbxProc::~TbxProc()
 {
 }
 
-void TbxProc::update(BoundingBox _box, MouseData md)
+void TbxProc::mouseEvent(BoundingBox _box, MouseData md)
 {
 	if (md.now_lmp == 1)
 	{
@@ -231,27 +232,50 @@ void TbxProc::update(BoundingBox _box, MouseData md)
 	textureUpdate();
 }
 
+void TbxProc::mandatoryUpdate()
+{
+	del_metr.update();
+}
+
 void TbxProc::backspaceEvent()
 {
-	int l, r, s;
-	if (first_hl_num < second_hl_num)
+	if (del_metr.getIsPassed() == 1)
 	{
-		l = first_hl_num;
-		r = second_hl_num;
-	}
-	else
-	{
-		r = first_hl_num;
-		l = second_hl_num;
-	}
-	if (l == r)
-	{
-		if (l != 0)
+		int l, r, s;
+		if (first_hl_num < second_hl_num)
 		{
-			BoundingBox first_del = str.getFromNum(l - 1);
-			str.deleteSymbols(l - 1, 1);
-			first_hl_num = l - 1;
-			first_hl_box = str.getFromNum(l - 1);
+			l = first_hl_num;
+			r = second_hl_num;
+		}
+		else
+		{
+			r = first_hl_num;
+			l = second_hl_num;
+		}
+		if (l == r)
+		{
+			if (l != 0)
+			{
+				BoundingBox first_del = str.getFromNum(l - 1);
+				str.deleteSymbols(l - 1, 1);
+				first_hl_num = l - 1;
+				first_hl_box = str.getFromNum(l - 1);
+				second_hl_num = first_hl_num;
+				second_hl_box = first_hl_box;
+				if (first_hl_box.getLeft() < viewPos)
+				{
+					setViewPos(first_hl_box.getLeft());
+				}
+				updateViews();
+				textureUpdate();
+			}
+		}
+		else
+		{
+			BoundingBox first_del = str.getFromNum(l);
+			str.deleteSymbols(l, r - l);
+			first_hl_num = l;
+			first_hl_box = str.getFromNum(l);
 			second_hl_num = first_hl_num;
 			second_hl_box = first_hl_box;
 			if (first_hl_box.getLeft() < viewPos)
@@ -378,6 +402,7 @@ TextBox::~TextBox()
 
 void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
+	proc.mandatoryUpdate();
 	if (box.contains(Mouse::getPosition(window)))
 	{
 		if (wm_dat.now_lmp == 1)
@@ -389,7 +414,7 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 			md.mp = Point(Mouse::getPosition(window)) - box.position;
 			md.now_lmp = wm_dat.now_lmp;
 			md.prev_lmp = wm_dat.prev_lmp;
-			proc.update(box, md);
+			proc.mouseEvent(box, md);
 		}
 		else
 		{
@@ -522,7 +547,7 @@ BoundingBox StrProc::getFromNum(int num)
 		{
 			old_num = symb_nums.size() - 1;
 		}
-		else if (old_num < 0)
+		else if (old_num < 0) //возможно это не понадобится
 		{
 			old_num = 0;
 		}
