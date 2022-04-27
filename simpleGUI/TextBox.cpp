@@ -290,14 +290,12 @@ void TbxProc::backspaceEvent()
 				second_hl_num = first_hl_num;
 				second_hl_box = first_hl_box;
 				str_width = str.getFromNum(str.str.getSize() - 1).getRight();
+
 				if (first_hl_box.getLeft() < view_pos)
 				{
-					setViewPos(first_hl_box.getLeft());
+					view_pos = first_hl_box.getLeft();
 				}
-				txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
-				txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
-				view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
-				updateViews(); //что то сделать с повторением этого кода
+				updateViews();
 				textureUpdate();
 			}
 		}
@@ -310,13 +308,11 @@ void TbxProc::backspaceEvent()
 			second_hl_num = first_hl_num;
 			second_hl_box = first_hl_box;
 			str_width = str.getFromNum(str.str.getSize() - 1).getRight();
+
 			if (first_hl_box.getLeft() < view_pos)
 			{
-				setViewPos(first_hl_box.getLeft());
+				view_pos = first_hl_box.getLeft();
 			}
-			txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
-			txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
-			view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
 			updateViews();
 			textureUpdate();
 		}
@@ -335,13 +331,11 @@ void TbxProc::charInputEvent(wchar_t c)
 	second_hl_num = first_hl_num;
 	second_hl_box = first_hl_box;
 	str_width = str.getFromNum(str.str.getSize() - 1).getRight();
-	if (first_hl_box.getLeft() > (view_pos + view_width))
+
+	if (first_hl_box.getLeft() + 1.0 > (view_pos + view_width))
 	{
-		setViewPos(first_hl_box.getLeft() - view_width);
+		view_pos = first_hl_box.getLeft() + 1.0 - view_width;
 	}
-	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
-	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
-	view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
 	updateViews();
 	textureUpdate();
 }
@@ -381,23 +375,21 @@ void TbxProc::textureUpdate()
 void TbxProc::moveView(float x)
 {
 	view_pos += x;
-	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width); //что то сделать с этой повторяющейся записью
-	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
-	view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
 	updateViews();
 }
 
 void TbxProc::setViewPos(float x)
 {
 	view_pos = x;
-	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
-	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
-	view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
 	updateViews();
 }
 
 void TbxProc::updateViews()
 {
+	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
+	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
+	view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
+	view_pos = fixInternalBounds(view_pos, view_width, str_pos, str_width);
 	int l, r;
 	BoundingBox nTxtPox;
 	str.getFromPos(txt_pos, &nTxtPox, &l);
