@@ -55,6 +55,7 @@ public:
 	void moveView(float x);
 	void setViewPos(float x);
 	void updateViews();
+	void noHlTextureUpdate();
 //	RenderTexture& getTexture();
 //private:
 	//TbxMover first_symb;
@@ -85,6 +86,9 @@ public:
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	void draw(RenderWindow& window);
 private:
+	bool focus;
+	int hl_cursor_alpha;
+	Metronome cursor_blinding;
 	RectangleShape rect;
 	BoundingBox box;
 	TbxProc proc;

@@ -1,4 +1,5 @@
 #include "GUITimer.h"
+#include <iostream>
 
 Metronome::Metronome():
 	is_passed(0),
@@ -17,12 +18,17 @@ Metronome::~Metronome()
 
 void Metronome::update()
 {
-	if (clock() - mark > period)
+	clock_t exp = clock();
+	if ((exp - mark) > period)
 	{
 		if (is_passed == 0)
 		{
 			is_passed = 1;
 			mark = clock();
+		}
+		else
+		{
+			is_passed = 0;
 		}
 	}
 	else
