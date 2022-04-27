@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include "simpleGUI.h"
 
 using namespace sf; // подключаем пространство имен sf
@@ -34,19 +35,23 @@ int main()
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())
 	{
+		std::vector<Event> events;
 		// Обрабатываем очередь событий в цикле
-		Event event;
-		while (window.pollEvent(event))
+		Event e;
+		while (window.pollEvent(e))
 		{
+			events.push_back(e);
 			// Пользователь нажал на «крестик» и хочет закрыть окно?
-			if (event.type == Event::Closed)
+			if (e.type == Event::Closed)
 				window.close(); // тогда закрываем его
+			//if (e.type == Event::TextEntered)
+			//	std::cout << e.text.unicode; // тогда закрываем его
 		}
 		// Установка цвета фона
 		ftest -= clock();
 		ftest = 1000.0 / ftest;
 		window.clear();
-		exp.update();
+		exp.update(events);
 		exp.draw();
 		// Отрисовка окна
 		window.display();

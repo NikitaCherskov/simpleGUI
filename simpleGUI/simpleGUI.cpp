@@ -89,9 +89,10 @@ void Interface::setWindow(RenderWindow& _window)
 	wm_dat.metronomes.push_back(Metronome(30));
 }
 
-void Interface::update() //возможно сделать единовременное присвоение окна
+void Interface::update(const std::vector<Event>& events) //возможно сделать единовременное присвоение окна
 {
 	int i;
+	wm_dat.events = events;
 	if (wm_dat.box.contains(Mouse::getPosition(*window))) //видоизменить обновление (чтобы обновлялось в любом случае)
 	{
 		wm_dat.mouse_inside = 1;

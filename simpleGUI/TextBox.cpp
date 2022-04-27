@@ -148,6 +148,12 @@ void StrProc::deleteSymbols(int _pos, int _size)
 	//std::cout << str.getSize() << ":" << symb_nums.size() << ":" << symb_poses.size() << "\n";
 }
 
+void StrProc::addSymbol(int _pos, wchar_t c)
+{
+	str.insert(_pos, c);
+	updateMarks();
+}
+
 void StrProc::updateMarks()
 {
 	symb_nums.clear();
@@ -283,11 +289,15 @@ void TbxProc::backspaceEvent()
 				first_hl_box = str.getFromNum(l - 1);
 				second_hl_num = first_hl_num;
 				second_hl_box = first_hl_box;
+				str_width = str.getFromNum(str.str.getSize() - 1).getRight();
 				if (first_hl_box.getLeft() < view_pos)
 				{
 					setViewPos(first_hl_box.getLeft());
 				}
-				updateViews();
+				txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
+				txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
+				view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
+				updateViews(); //что то сделать с повторением этого кода
 				textureUpdate();
 			}
 		}
@@ -299,14 +309,41 @@ void TbxProc::backspaceEvent()
 			first_hl_box = str.getFromNum(l);
 			second_hl_num = first_hl_num;
 			second_hl_box = first_hl_box;
+			str_width = str.getFromNum(str.str.getSize() - 1).getRight();
 			if (first_hl_box.getLeft() < view_pos)
 			{
 				setViewPos(first_hl_box.getLeft());
 			}
+			txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
+			txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
+			view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
 			updateViews();
 			textureUpdate();
 		}
 	}
+}
+
+void TbxProc::charInputEvent(wchar_t c)
+{
+	if (first_hl_num != second_hl_num)
+	{
+		backspaceEvent();
+	}
+	str.addSymbol(first_hl_num, c);
+	first_hl_num++;
+	first_hl_box = str.getFromNum(first_hl_num);
+	second_hl_num = first_hl_num;
+	second_hl_box = first_hl_box;
+	str_width = str.getFromNum(str.str.getSize() - 1).getRight();
+	if (first_hl_box.getLeft() > (view_pos + view_width))
+	{
+		setViewPos(first_hl_box.getLeft() - view_width);
+	}
+	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
+	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
+	view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
+	updateViews();
+	textureUpdate();
 }
 
 void TbxProc::textureUpdate()
@@ -344,7 +381,7 @@ void TbxProc::textureUpdate()
 void TbxProc::moveView(float x)
 {
 	view_pos += x;
-	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width);
+	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width); //что то сделать с этой повторяющейся записью
 	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
 	view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
 	updateViews();
@@ -415,6 +452,7 @@ TextBox::~TextBox()
 
 void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
+	int i;
 	proc.mandatoryUpdate();
 	if (box.contains(Mouse::getPosition(window)))
 	{
@@ -433,22 +471,16 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 		{
 		}
 	}
-	int l, r, s; //заменить на более изящное использование уже вычисленной области выделения
-
-	if (proc.first_hl_num < proc.second_hl_num)
-	{
-		l = proc.first_hl_num;
-		r = proc.second_hl_num;
-	}
-	else
-	{
-		r = proc.first_hl_num;
-		l = proc.second_hl_num;
-	}
-	s = r - l + 1;
 	if (Keyboard::isKeyPressed(Keyboard::BackSpace) == 1)
 	{
 		proc.backspaceEvent();
+	}
+	for (i = 0; i < wm_dat.events.size(); i++)
+	{
+		if (wm_dat.events[i].type == Event::TextEntered && wm_dat.events[i].text.unicode != 8 && wm_dat.events[i].text.unicode != 13)
+		{
+			proc.charInputEvent(wm_dat.events[i].text.unicode);
+		}
 	}
 }
 

@@ -43,6 +43,7 @@ public:
 	WMInterfaceData(); //сделать в конструкторе box зависимым от window
 	~WMInterfaceData();
 	std::vector<Metronome> metronomes;
+	std::vector<Event> events;
 	BoundingBox box;
 	bool now_lmp;
 	bool prev_lmp;
@@ -56,7 +57,7 @@ public:
 	//Interface(BondingBox _box);
 	~Interface();
 	void setWindow(RenderWindow& _window);
-	void update();
+	void update(const std::vector<Event>& events);
 	void draw();
 	void load(Element* element);
 private:

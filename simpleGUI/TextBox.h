@@ -31,6 +31,7 @@ public:
 	BoundingBox getFromNum(int num);
 	void getFromPos(float pos, BoundingBox* box_write = NULL, int* num_write = NULL);
 	void deleteSymbols(int _pos, int _size);
+	void addSymbol(int _pos, wchar_t c);
 	//getCentringFromPos(...);
 	void updateMarks();
 	String str;
@@ -49,6 +50,7 @@ public:
 	void mouseEvent(BoundingBox _box, MouseData md);
 	void mandatoryUpdate();
 	void backspaceEvent();
+	void charInputEvent(wchar_t c);
 	void textureUpdate();
 	void moveView(float x);
 	void setViewPos(float x);
