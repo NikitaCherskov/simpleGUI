@@ -455,6 +455,7 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 			if (wm_dat.prev_lmp == 0)
 			{
 				focus = 1;
+				rect.setOutlineColor(Color(80, 80, 80));
 			}
 			MouseData md;
 			md.mp = Point(Mouse::getPosition(window)) - box.position;
@@ -474,6 +475,7 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 			{
 				focus = 0;
 				proc.noHlTextureUpdate();
+				rect.setOutlineColor(Color(60, 60, 60));
 			}
 		}
 	}
