@@ -2,6 +2,7 @@
 #include "simpleGUI.h"
 #include "GUITimer.h"
 
+bool isLetter(char c);
 
 class NumMark
 {
@@ -56,6 +57,14 @@ public:
 	void setViewPos(float x);
 	void updateViews();
 	void noHlTextureUpdate();
+
+	int getFirstHlNum();
+	int getSecondHlNum();
+	void setFirstHlNum(int num);
+	void setSecondHlNum(int num);
+	void firstToSecondNum();
+	void specialMoveSecondRight();
+	void specialMoveSecondLeft();
 //	RenderTexture& getTexture();
 //private:
 	//TbxMover first_symb;

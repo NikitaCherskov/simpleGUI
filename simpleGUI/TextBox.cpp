@@ -329,7 +329,7 @@ void TbxProc::charInputEvent(wchar_t c)
 	second_hl_box = first_hl_box;
 	str_width = str.getFromNum(str.str.getSize() - 1).getRight();
 
-	if (first_hl_box.getLeft() + 1.0 > (view_pos + view_width))
+	if (first_hl_box.getLeft() + 1.0 > (view_pos + view_width)) //заменить на second_hl_box?
 	{
 		view_pos = first_hl_box.getLeft() + 1.0 - view_width;
 	}
@@ -369,6 +369,118 @@ void TbxProc::noHlTextureUpdate()
 	texture.clear(Color::Black);
 	texture.draw(txt);
 	texture.display();
+}
+
+int TbxProc::getFirstHlNum()
+{
+	return first_hl_num;
+}
+
+int TbxProc::getSecondHlNum()
+{
+	return second_hl_num;
+}
+
+void TbxProc::setFirstHlNum(int num)
+{
+	first_hl_num = num;
+	if (first_hl_num < 0)
+	{
+		first_hl_num = 0;
+	}
+	else if (first_hl_num > str.str.getSize() - 1)
+	{
+		first_hl_num = str.str.getSize() - 1;
+	}
+	first_hl_box = str.getFromNum(first_hl_num);
+	updateViews();
+	textureUpdate();
+}
+
+void TbxProc::setSecondHlNum(int num)
+{
+	second_hl_num = num;
+	if (second_hl_num < 0)
+	{
+		second_hl_num = 0;
+	}
+	else if(second_hl_num > str.str.getSize())
+	{
+		second_hl_num = str.str.getSize();
+	}
+	second_hl_box = str.getFromNum(second_hl_num);
+	if (second_hl_box.getLeft() < view_pos)
+	{
+		view_pos = second_hl_box.getLeft();
+	}
+	else if (second_hl_box.getLeft() + 1.0 > (view_pos + view_width))
+	{
+		view_pos = second_hl_box.getLeft() + 1.0 - view_width;
+	}
+	updateViews();
+	textureUpdate();
+}
+
+void TbxProc::firstToSecondNum()
+{
+	first_hl_num = second_hl_num;
+	first_hl_box = second_hl_box;
+	updateViews();
+	textureUpdate();
+}
+
+void TbxProc::specialMoveSecondRight()
+{
+	int i = second_hl_num;
+	if (second_hl_num + 1 < str.str.getSize())
+	{
+		i++;
+	}
+
+	for (; i < str.str.getSize(); i++)
+	{
+		bool prev_type;
+		if (i > 0)
+		{
+			prev_type = isLetter(str.str[i - 1]);
+		}
+		else
+		{
+			prev_type = isLetter(str.str[i]);
+		}
+		if (isLetter(str.str[i]) == 1 && prev_type == 0)
+		{
+			break;
+		}
+	}
+	setSecondHlNum(i);
+}
+
+void TbxProc::specialMoveSecondLeft()
+{
+	int i = second_hl_num;
+	if (second_hl_num - 1 < str.str.getSize())
+	{
+		i--;
+	}
+
+	for (; i < str.str.getSize(); i--)
+	{
+		bool prev_type;
+		if (i > 0)
+		{
+			prev_type = isLetter(str.str[i - 1]);
+		}
+		else
+		{
+			prev_type = isLetter(str.str[i]);
+		}
+		if (isLetter(str.str[i]) == 1 && prev_type == 0)
+		{
+			break;
+		}
+	}
+	setSecondHlNum(i);
 }
 
 void TbxProc::moveView(float x)
@@ -444,7 +556,7 @@ TextBox::~TextBox()
 
 
 
-void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
+void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window) //Баг - навести на поле уже зажатую мышку
 {
 	int i;
 	proc.mandatoryUpdate();
@@ -494,6 +606,48 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 					proc.backspaceEvent();
 				}
 			}
+			else if(wm_dat.events[i].type == Event::KeyPressed)
+			{
+				bool is_moved = 0;;
+				if (wm_dat.events[i].key.code == Keyboard::Key::Right)
+				{
+					if (wm_dat.events[i].key.control == 1)
+					{
+						proc.specialMoveSecondRight();
+					}
+					else
+					{
+						proc.setSecondHlNum(proc.getSecondHlNum() + 1);
+					}
+					is_moved = 1;
+				}
+				else if (wm_dat.events[i].key.code == Keyboard::Key::Left)
+				{
+					if (wm_dat.events[i].key.control == 1)
+					{
+						proc.specialMoveSecondLeft();
+					}
+					else
+					{
+						proc.setSecondHlNum(proc.getSecondHlNum() - 1);
+					}
+					is_moved = 1;
+				}
+				if (is_moved == 1 && wm_dat.events[i].key.shift == 0)
+				{
+					proc.firstToSecondNum();
+				}
+			}
+			/*
+			if (Keyboard::isKeyPressed(Keyboard::Key::Right))
+			{
+
+			}
+			else if (Keyboard::isKeyPressed(Keyboard::Key::Right))
+			{
+
+			}
+			*/
 		}
 	}
 }
@@ -545,4 +699,18 @@ void TextBox::draw(RenderWindow& window)
 	hl_cursor_rect.setPosition(Vector2f(proc.txt_pos, 2.0));
 	window.draw(hl_cursor_rect);
 	*/
+}
+
+bool isLetter(char c)
+{
+	if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' ||
+		c >= 'А' && c <= 'Я' || c >= 'а' && c <= 'я' ||
+		c == 'Ё' || c == 'ё')
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
