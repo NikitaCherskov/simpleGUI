@@ -86,7 +86,7 @@ public:
 	StrProc str;
 	Metronome del_metr;
 };
-class TextBox : public ControlElement
+class TextBox : public Element
 {
 public:
 	//TextBox();

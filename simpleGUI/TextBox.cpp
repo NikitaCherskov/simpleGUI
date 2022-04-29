@@ -236,7 +236,7 @@ TbxProc::~TbxProc()
 
 void TbxProc::mouseEvent(BoundingBox _box, MouseData md)
 {
-	if (md.now_lmp == 1)
+	if (md.lmp == 1)
 	{
 		if (md.prev_lmp == 0)
 		{
@@ -499,8 +499,8 @@ void TbxProc::updateViews()
 {
 	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width); //текст должен начинатся на нектором удалении от начала
 	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
-	view_pos = fixInternalBounds(view_pos, view_width, txt_pos, txt_width);
-	view_pos = fixInternalBounds(view_pos, view_width, str_pos, str_width);
+	view_pos = fixInternalBounds(view_pos, view_width, txt_pos - 3.0, txt_width + 6.0);
+	view_pos = fixInternalBounds(view_pos, view_width, str_pos - 3.0, str_width + 6.0);
 	int l, r;
 	BoundingBox nTxtPox;
 	str.getFromPos(txt_pos, &nTxtPox, &l);
@@ -558,22 +558,32 @@ TextBox::~TextBox()
 
 void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window) //Баг - навести на поле уже зажатую мышку
 {
+	//СПИСОК ДЕЛ:
+	//РАССТОЯНИЕ ОТ КРАЕВ - 0.5
+	//сОКРОСТЬ ПЕРМЕЩЕНИЯ ЗАВИСИМА ОТ БЛИЗОСТИ КУРСОРА К КРАЮ
 	int i;
+	MouseData md;
+	md.prev_mp = wm_dat.md.prev_mp - box.position;
+	md.mp = wm_dat.md.mp - box.position;
+	md.lmp = wm_dat.now_lmp;
+	md.prev_lmp = wm_dat.prev_lmp;
 	proc.mandatoryUpdate();
-	if (box.contains(Mouse::getPosition(window)))
+	if (box.contains(wm_dat.md.mp) == 1)
 	{
 		if (wm_dat.now_lmp == 1)
 		{
 			if (wm_dat.prev_lmp == 0)
 			{
-				focus = 1;
-				rect.setOutlineColor(Color(80, 80, 80));
+				if (box.contains(wm_dat.md.prev_mp) == 1)
+				{
+					focus = 1;
+					rect.setOutlineColor(Color(80, 80, 80));
+				}
 			}
-			MouseData md;
-			md.mp = Point(Mouse::getPosition(window)) - box.position;
-			md.now_lmp = wm_dat.now_lmp;
-			md.prev_lmp = wm_dat.prev_lmp;
-			proc.mouseEvent(box, md);
+			if (focus == 1)
+			{
+				proc.mouseEvent(box, md);
+			}
 		}
 		else
 		{

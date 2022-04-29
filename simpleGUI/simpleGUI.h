@@ -34,7 +34,8 @@ class MouseData
 {
 public:
 	Point mp;
-	bool now_lmp;
+	Point prev_mp;
+	bool lmp;
 	bool prev_lmp;
 };
 class WMInterfaceData
@@ -45,6 +46,7 @@ public:
 	std::vector<Metronome> metronomes;
 	std::vector<Event> events;
 	BoundingBox box;
+	MouseData md;
 	bool now_lmp;
 	bool prev_lmp;
 	bool mouse_inside;
@@ -91,7 +93,7 @@ protected:
 	WMInterfaceData wm_dat;
 	std::vector<ControlElement*> elements;
 };
-
+//////////////////////////////////////////////////////////////////////
 class ControlElement :public Element //возможно убрать промежуточный класс. для этого взглянуть на равноправность контролов и меню
 {
 public:
@@ -103,7 +105,7 @@ public:
 protected:
 	BoundingBox box; //возможно сделать открытым
 };
-
+//////////////////////////////////////////////////////////////////////
 class TextElement
 {
 public:
@@ -130,7 +132,7 @@ protected:
 	Text text;
 };
 
-class Button :public ControlElement, public TextElement
+class Button :public Element, public TextElement
 {
 public:
 	Button();
@@ -145,7 +147,7 @@ private:
 	void modelUpdate(); //возможно переименовать в positionUpdate()
 };
 
-class Label :public ControlElement, public TextElement
+class Label :public Element, public TextElement
 {
 public:
 	Label();
@@ -159,7 +161,7 @@ private:
 	int symbol_max;
 };
 
-class NumericLabel :public ControlElement, public NumericTextElement //тут не должно быть _box
+class NumericLabel :public Element, public NumericTextElement //тут не должно быть _box
 {
 public:
 	NumericLabel();
@@ -180,7 +182,7 @@ private:
 	float prev_tied;
 };
 
-class Slider: public ControlElement
+class Slider: public Element
 {
 public:
 	Slider();

@@ -92,6 +92,11 @@ void Interface::setWindow(RenderWindow& _window)
 void Interface::update(const std::vector<Event>& events) //возможно сделать единовременное присвоение окна
 {
 	int i;
+	wm_dat.md.prev_mp = wm_dat.md.mp;
+	wm_dat.md.mp = Point(Mouse::getPosition(*window));
+	wm_dat.md.lmp = wm_dat.now_lmp;
+	wm_dat.md.prev_lmp = wm_dat.prev_lmp;
+
 	wm_dat.events = events;
 	if (wm_dat.box.contains(Mouse::getPosition(*window))) //видоизменить обновление (чтобы обновлялось в любом случае)
 	{
@@ -323,7 +328,7 @@ Button::Button() //заполнить этот коструктор
 }
 
 Button::Button(BoundingBox _box) :
-	ControlElement(_box)
+	Element(_box)
 {
 	textUpdate();
 	modelUpdate();
@@ -498,7 +503,7 @@ Slider::Slider()
 }
 
 Slider::Slider(BoundingBox _box) :
-	ControlElement(_box),
+	Element(_box),
 	sub_box(box.position + Point(0.0, 0.0), 10.0, box.height),
 	is_grabed(0),
 	grab_pnt(0.0),
