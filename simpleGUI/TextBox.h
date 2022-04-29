@@ -74,6 +74,7 @@ public:
 	BoundingBox second_hl_box;
 	int second_hl_num;
 
+	float indent;
 	float str_pos;
 	float str_width;
 	float txt_pos;

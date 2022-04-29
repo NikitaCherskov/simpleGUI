@@ -214,6 +214,7 @@ TbxProc::TbxProc(BoundingBox _box, const String& _str) :
 	first_hl_num(0),
 	second_hl_num(0),
 	del_metr(200),
+	indent(3.0),
 
 	str_pos(0.0), txt_pos(0.0), view_pos(0.0)
 {
@@ -221,9 +222,10 @@ TbxProc::TbxProc(BoundingBox _box, const String& _str) :
 	txt.setCharacterSize(14);
 	txt.setFont(getFont());
 	txt.setString(_str);
-	//txt.setPosition(5.0, 0.0);
+	txt.setPosition((int)str_pos - (int)view_pos + (int)indent, 0.0);
 	textureUpdate();
 
+	view_pos -= indent;
 	str_width = str.getFromNum(str.str.getSize() - 1).getRight();
 	view_width = _box.getWidth();
 	txt_width = view_width * 2.0;
@@ -246,11 +248,11 @@ void TbxProc::mouseEvent(BoundingBox _box, MouseData md)
 		str.getFromPos(md.mp.x + view_pos, &second_hl_box, &second_hl_num);
 		if (_box.width - md.mp.x < 20.0)
 		{
-			moveView(0.1);
+			moveView(0.3 * ((20.0 - _box.width + md.mp.x) / 20.0));
 		}
 		else if (md.mp.x  < 20.0)
 		{
-			moveView(-0.1);
+			moveView(-0.3 * ((20.0 - md.mp.x) / 20.0));
 		}
 	}
 	else
@@ -289,9 +291,9 @@ void TbxProc::backspaceEvent()
 			second_hl_box = first_hl_box;
 			str_width = str.getFromNum(str.str.getSize() - 1).getRight();
 
-			if (first_hl_box.getLeft() < view_pos)
+			if (first_hl_box.getLeft() < view_pos + indent)
 			{
-				view_pos = first_hl_box.getLeft();
+				view_pos = first_hl_box.getLeft() - indent;
 			}
 			updateViews();
 			textureUpdate();
@@ -307,9 +309,9 @@ void TbxProc::backspaceEvent()
 		second_hl_box = first_hl_box;
 		str_width = str.getFromNum(str.str.getSize() - 1).getRight();
 
-		if (first_hl_box.getLeft() < view_pos)
+		if (first_hl_box.getLeft() < view_pos + indent)
 		{
-			view_pos = first_hl_box.getLeft();
+			view_pos = first_hl_box.getLeft() - indent;
 		}
 		updateViews();
 		textureUpdate();
@@ -329,9 +331,9 @@ void TbxProc::charInputEvent(wchar_t c)
 	second_hl_box = first_hl_box;
 	str_width = str.getFromNum(str.str.getSize() - 1).getRight();
 
-	if (first_hl_box.getLeft() + 1.0 > (view_pos + view_width)) //заменить на second_hl_box?
+	if (first_hl_box.getLeft() + 1.0 > view_pos + view_width - indent) //заменить на second_hl_box?
 	{
-		view_pos = first_hl_box.getLeft() + 1.0 - view_width;
+		view_pos = first_hl_box.getLeft() + 1.0 + indent - view_width;
 	}
 	updateViews();
 	textureUpdate();
@@ -409,13 +411,13 @@ void TbxProc::setSecondHlNum(int num)
 		second_hl_num = str.str.getSize();
 	}
 	second_hl_box = str.getFromNum(second_hl_num);
-	if (second_hl_box.getLeft() < view_pos)
+	if (second_hl_box.getLeft() < view_pos + indent)
 	{
-		view_pos = second_hl_box.getLeft();
+		view_pos = second_hl_box.getLeft() - indent;
 	}
-	else if (second_hl_box.getLeft() + 1.0 > (view_pos + view_width))
+	else if (second_hl_box.getLeft() + 1.0 > view_pos + view_width - indent)
 	{
-		view_pos = second_hl_box.getLeft() + 1.0 - view_width;
+		view_pos = second_hl_box.getLeft() + 1.0 + indent - view_width;
 	}
 	updateViews();
 	textureUpdate();
@@ -499,8 +501,8 @@ void TbxProc::updateViews()
 {
 	txt_pos = loadTxtBounds(view_pos, view_width, txt_pos, txt_width); //текст должен начинатся на нектором удалении от начала
 	txt_pos = fixInternalBounds(txt_pos, txt_width, str_pos, str_width);
-	view_pos = fixInternalBounds(view_pos, view_width, txt_pos - 3.0, txt_width + 6.0);
-	view_pos = fixInternalBounds(view_pos, view_width, str_pos - 3.0, str_width + 6.0);
+	view_pos = fixInternalBounds(view_pos, view_width, txt_pos - indent, txt_width + indent * 2.0);
+	view_pos = fixInternalBounds(view_pos, view_width, str_pos - indent, str_width + indent * 2.0);
 	int l, r;
 	BoundingBox nTxtPox;
 	str.getFromPos(txt_pos, &nTxtPox, &l);
@@ -673,7 +675,7 @@ void TextBox::draw(RenderWindow& window)
 
 	window.draw(sprite);
 
-	if (focus == 1)
+	if (focus == 1 && (proc.second_hl_box.position.x - proc.view_pos > 0.0))
 	{
 		RectangleShape hl_cursor_rect(Vector2f(1.0, 16.0));
 		hl_cursor_rect.setPosition(rect.getPosition() + Vector2f(proc.second_hl_box.position.x - proc.view_pos, 1.0));
