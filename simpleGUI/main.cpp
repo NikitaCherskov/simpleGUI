@@ -26,12 +26,16 @@ int main()
 
 	TextBox* tbx = new TextBox(BoundingBox(Point(500.0, 700.0), 200.0, 20.0), "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz");
 
+	SubWindow* wnd = new SubWindow(BoundingBox(Point(10.0, 10.0), 200.0, 200.0));
+
 	//btn->setString("abobus");
 	exp.load(tbx);
 	exp.load(sld);
 	exp.load(btn);
 	exp.load(lbl);
 	exp.load(nlb);
+	exp.load(wnd);
+
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())
 	{

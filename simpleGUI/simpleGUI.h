@@ -78,7 +78,7 @@ public:
 	virtual void draw(RenderWindow& window);
 	BoundingBox box;
 };
-
+/*
 class ElementsMenu :public Element
 {
 public:
@@ -93,6 +93,8 @@ protected:
 	WMInterfaceData wm_dat;
 	std::vector<ControlElement*> elements;
 };
+*/
+#include "SubWindow.h"
 //////////////////////////////////////////////////////////////////////
 class ControlElement :public Element //возможно убрать промежуточный класс. для этого взглянуть на равноправность контролов и меню
 {

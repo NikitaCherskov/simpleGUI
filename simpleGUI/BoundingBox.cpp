@@ -32,7 +32,7 @@ void BoundingBox::setCenterPosition(Point _position)
 
 bool BoundingBox::contains(Point cnt)
 {
-	if (cnt.x > getLeft() && cnt.x < getRight() && cnt.y > getUp() && cnt.y < getDown())
+	if (cnt.x >= getLeft() && cnt.x <= getRight() && cnt.y >= getUp() && cnt.y <= getDown())
 	{
 		return 1;
 	}

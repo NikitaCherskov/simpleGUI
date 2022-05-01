@@ -173,7 +173,7 @@ WMInterfaceData::~WMInterfaceData()
 
 
 //ElementsMenu
-
+/*
 ElementsMenu::ElementsMenu()
 {
 }
@@ -223,7 +223,7 @@ void ElementsMenu::load(ControlElement* element)
 	elements.push_back(element);
 }
 
-
+*/
 //ControlElement
 
 ControlElement::ControlElement()
