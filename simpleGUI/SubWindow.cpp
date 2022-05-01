@@ -62,9 +62,9 @@ SubWindow::SubWindow(BoundingBox _box):
 	view_rect.setOutlineColor(Color(220, 220, 220));
 	viewUpdate();
 	grabs[0].box = header_box;
-	grabs[1].box = BoundingBox(Point(box.width - 2.0, box.height - 2.0), 5.0, 5.0);
-	grabs[2].box = BoundingBox(Point(box.width - 2.0, 0.0), 5.0, box.height);
-	grabs[3].box = BoundingBox(Point(0.0, box.height - 2.0), box.width, 5.0);
+	grabs[1].box = BoundingBox(Point(-2.0, -2.0), 5.0, box.height + 4.0);
+	grabs[2].box = BoundingBox(Point(box.width - 2.0, -2.0), 5.0, box.height + 4.0);
+	grabs[3].box = BoundingBox(Point(-2.0, box.height - 2.0), box.width + 4.0, 5.0);
 }
 
 SubWindow::~SubWindow()
@@ -85,24 +85,27 @@ void SubWindow::update(WMInterfaceData& wm_dat, RenderWindow& window)
 		box.position = grabs[0].moved_box.position + box.position;
 		viewUpdate();
 	}
-	else if (grabs[1].is_grabbed == 1)
+	else
 	{
-		box.width = grabs[1].moved_box.position.x + 2.0;
-		box.height = grabs[1].moved_box.position.y + 2.0;
-		resizeUpdate();
-		viewUpdate();
-	}
-	else if (grabs[2].is_grabbed == 1)
-	{
-		box.width = grabs[2].moved_box.position.x + 2.0;
-		resizeUpdate();
-		viewUpdate();
-	}
-	else if (grabs[3].is_grabbed == 1)
-	{
-		box.height = grabs[3].moved_box.position.y + 2.0;
-		resizeUpdate();
-		viewUpdate();
+		if (grabs[1].is_grabbed == 1)
+		{
+			box.width -= grabs[1].moved_box.position.x;
+			box.position.x = grabs[1].moved_box.position.x + box.position.x;
+			resizeUpdate();
+			viewUpdate();
+		}
+		if (grabs[2].is_grabbed == 1)
+		{
+			box.width = grabs[2].moved_box.position.x + 2.0;
+			resizeUpdate();
+			viewUpdate();
+		}
+		if (grabs[3].is_grabbed == 1)
+		{
+			box.height = grabs[3].moved_box.position.y + 2.0;
+			resizeUpdate();
+			viewUpdate();
+		}
 	}
 }
 
@@ -125,9 +128,9 @@ void SubWindow::resizeUpdate()
 	view_box.width = box.width;
 	view_box.height = box.height - 15.0;
 	grabs[0].box = header_box;
-	grabs[1].box = BoundingBox(Point(box.width - 2.0, box.height - 2.0), 5.0, 5.0);
-	grabs[2].box = BoundingBox(Point(box.width - 2.0, 0.0), 5.0, box.height);
-	grabs[3].box = BoundingBox(Point(0.0, box.height - 2.0), box.width, 5.0);
+	grabs[1].box = BoundingBox(Point(-2.0, -2.0), 5.0, box.height + 4.0);
+	grabs[2].box = BoundingBox(Point(box.width - 2.0, -2.0), 5.0, box.height + 4.0);
+	grabs[3].box = BoundingBox(Point(-2.0, box.height - 2.0), box.width + 2.0, 5.0);
 }
 
 void SubWindow::moveUpdate()
