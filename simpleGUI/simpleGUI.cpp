@@ -535,7 +535,7 @@ Slider::~Slider()
 
 void Slider::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
-	Point mp = Mouse::getPosition(window);
+	Point mp = wm_dat.md.mp;
 	if (sub_box.contains(mp))
 	{
 		if (wm_dat.now_lmp == 1)

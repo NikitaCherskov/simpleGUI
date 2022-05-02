@@ -20,7 +20,7 @@ int main()
 	float ftest = clock();
 	nlb = new NumericLabel(Point(450.0, 202.0), 4, 2, &ftest);
 	Slider* sld;
-	BoundingBox box2(Point(500.0, 200.0), 200.0, 20.0);
+	BoundingBox box2(Point(10.0, 40.0), 200.0, 20.0);
 	sld = new Slider(box2);
 	BoundingBox box3(Point(500.0, 100.0), 200.0, 20.0);
 
@@ -30,12 +30,13 @@ int main()
 
 	//btn->setString("abobus");
 	exp.load(tbx);
-	exp.load(sld);
+	//exp.load(sld);
 	//exp.load(btn);
 	exp.load(lbl);
 	exp.load(nlb);
 	exp.load(wnd);
 	wnd->load(btn);
+	wnd->load(sld);
 
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())

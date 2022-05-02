@@ -37,6 +37,9 @@ private:
 
 	RectangleShape header_rect;
 	RectangleShape view_rect;
+	RectangleShape h_rect;
+	RectangleShape v_rect;
+	RectangleShape inter_hv_rect;
 
 	std::vector<Element*> elements;
 	RenderTexture texture;

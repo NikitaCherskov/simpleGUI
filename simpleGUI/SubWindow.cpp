@@ -59,10 +59,15 @@ SubWindow::SubWindow(BoundingBox _box):
 	resMovUpdate();
 	header_rect.setFillColor(Color(220, 220, 220));
 
+	h_rect.setFillColor(Color(180, 180, 180));
+	v_rect.setFillColor(Color(180, 180, 180));
+	inter_hv_rect.setFillColor(Color(160, 160, 160));
+	inter_hv_rect.setSize(Vector2f(10.0, 10.0));
 	//view_rect.setOrigin(0.0, -15.0); //setorigin убрать
 	view_rect.setFillColor(Color::Black);
 	view_rect.setOutlineThickness(1.0);
 	view_rect.setOutlineColor(Color(220, 220, 220));
+	resizeUpdate();
 	viewUpdate();
 }
 
@@ -120,6 +125,18 @@ void SubWindow::draw(RenderTarget* target)
 	int i;
 	target->draw(header_rect);
 	target->draw(view_rect);
+	if (v_slider == 1)
+	{
+		target->draw(v_rect);
+	}
+	if (h_slider == 1)
+	{
+		target->draw(h_rect);
+	}
+	if (v_slider == 1 && h_slider == 1)
+	{
+		target->draw(inter_hv_rect);
+	}
 	texture.clear(Color::Black);
 	for (i = 0; i < elements.size(); i++)
 	{
@@ -161,6 +178,7 @@ void SubWindow::resizeUpdate()
 	grabs[1].box = BoundingBox(Point(-2.0, -2.0), 5.0, box.height + 4.0);
 	grabs[2].box = BoundingBox(Point(box.width - 2.0, -2.0), 5.0, box.height + 4.0);
 	grabs[3].box = BoundingBox(Point(-2.0, box.height - 2.0), box.width + 2.0, 5.0);
+	slideUpdate();
 }
 
 void SubWindow::moveUpdate()
@@ -180,6 +198,81 @@ void SubWindow::viewUpdate()
 
 	header_rect.setPosition(box.position.x, box.position.y);
 	view_rect.setPosition(box.position.x + 1.0, box.position.y + 16.0);
+
+	h_rect.setPosition(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y);
+	v_rect.setPosition(view_box.getRight() + box.position.x, view_box.getUp() + box.position.y);
+	inter_hv_rect.setPosition(view_box.getRight() + box.position.x, view_box.getDown() + box.position.y);
+}
+
+void SubWindow::slideUpdate()
+{
+	if (texture.getSize().x > view_rect.getSize().x)
+	{
+		h_slider = 1;
+		if (texture.getSize().y > (view_rect.getSize().y - 10.0))
+		{
+			v_slider = 1;
+		}
+		else
+		{
+			v_slider = 0;
+		}
+	}
+	else
+	{
+		h_slider = 0;
+		if (texture.getSize().y > view_rect.getSize().y)
+		{
+			v_slider = 1;
+		}
+		else
+		{
+			v_slider = 0;
+		}
+	}
+
+	if (texture.getSize().y > view_rect.getSize().y)
+	{
+		v_slider = 1;
+		if (texture.getSize().x > (view_rect.getSize().x - 10.0))
+		{
+			h_slider = 1;
+		}
+		else
+		{
+			h_slider = 0;
+		}
+	}
+	else
+	{
+		v_slider = 0;
+		if (texture.getSize().x > view_rect.getSize().x)
+		{
+			h_slider = 1;
+		}
+		else
+		{
+			h_slider = 0;
+		}
+	}
+
+	if (v_slider == 1)
+	{
+		view_box.width -= 10.0;
+	}
+	if (h_slider == 1)
+	{
+		view_box.height -= 10.0;
+		//h_rect.setPosition(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y);
+		h_rect.setSize(Vector2f(view_box.width, 10.0));
+		viewUpdate(); //избавится от повторения
+	}
+	if (v_slider == 1)
+	{
+		//v_rect.setPosition(view_box.getRight() + box.position.x, view_box.getUp() + box.position.y);
+		v_rect.setSize(Vector2f(10.0, view_box.height));
+		viewUpdate(); //избавится от повторения
+	}
 }
 
 void SubWindow::load(Element* element)
@@ -194,4 +287,5 @@ void SubWindow::load(Element* element)
 		max_pos.y = element->box.getDown();
 	}
 	texture.create(max_pos.x, max_pos.y);
+	slideUpdate();
 }
