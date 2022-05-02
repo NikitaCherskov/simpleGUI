@@ -10,7 +10,7 @@ int main()
 	RenderWindow window(VideoMode(1000, 1000), "SFML Works!");
 	Interface exp;
 	exp.setWindow(window);
-	BoundingBox box1(Point(500.0, 500.0), 200.0, 20.0);
+	BoundingBox box1(Point(10.0, 10.0), 200.0, 20.0);
 	Button* btn;
 	btn = new Button(box1);
 	Label* lbl;
@@ -31,10 +31,11 @@ int main()
 	//btn->setString("abobus");
 	exp.load(tbx);
 	exp.load(sld);
-	exp.load(btn);
+	//exp.load(btn);
 	exp.load(lbl);
 	exp.load(nlb);
 	exp.load(wnd);
+	wnd->load(btn);
 
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())

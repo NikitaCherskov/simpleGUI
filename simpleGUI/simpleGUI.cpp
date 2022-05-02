@@ -123,7 +123,7 @@ void Interface::draw()
 	int i;
 	for (i = 0; i < elements.size(); i++)
 	{
-		elements[i]->draw(*window);
+		elements[i]->draw(window);
 	}
 }
 
@@ -152,7 +152,7 @@ void Element::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
 }
 
-void Element::draw(RenderWindow& window)
+void Element::draw(RenderTarget* target)
 {
 }
 
@@ -342,7 +342,7 @@ Button::~Button()
 
 void Button::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
-	if (box.contains(Mouse::getPosition(window)))
+	if (box.contains(wm_dat.md.mp))
 	{
 		if (wm_dat.now_lmp == 1)
 		{
@@ -363,10 +363,10 @@ void Button::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	}
 }
 
-void Button::draw(RenderWindow& window)
+void Button::draw(RenderTarget* target)
 {
-	window.draw(rect);
-	window.draw(text);
+	target->draw(rect);
+	target->draw(text);
 }
 
 void Button::setColor(Color _color)
@@ -402,9 +402,9 @@ void Label::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
 }
 
-void Label::draw(RenderWindow& window)
+void Label::draw(RenderTarget* target)
 {
-	window.draw(text);
+	target->draw(text);
 }
 
 void Label::textUpdate()
@@ -446,17 +446,17 @@ void NumericLabel::update(WMInterfaceData& wm_dat, RenderWindow& window)
 {
 }
 
-void NumericLabel::draw(RenderWindow& window)
+void NumericLabel::draw(RenderTarget* target)
 {
 	if (prev_tied != *tied)
 	{
 		text.setString(ftos(*tied, bc, ac));
 		prev_tied = *tied;
-		window.draw(text);
+		target->draw(text);
 	}
 	else
 	{
-		window.draw(text);
+		target->draw(text);
 	}
 }
 
@@ -591,11 +591,11 @@ void Slider::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	}
 }
 
-void Slider::draw(RenderWindow& window)
+void Slider::draw(RenderTarget* target)
 {
-	window.draw(vline, 2, PrimitiveType::LinesStrip);
-	window.draw(&vline[2], 2, PrimitiveType::LinesStrip);
-	window.draw(rect);
+	target->draw(vline, 2, PrimitiveType::LinesStrip);
+	target->draw(&vline[2], 2, PrimitiveType::LinesStrip);
+	target->draw(rect);
 }
 
 float Slider::getValue()

@@ -75,7 +75,7 @@ public:
 	Element(BoundingBox _box);
 	~Element();
 	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	virtual void draw(RenderWindow& window);
+	virtual void draw(RenderTarget* target);
 	BoundingBox box;
 };
 /*
@@ -141,7 +141,7 @@ public:
 	Button(BoundingBox _box);
 	~Button();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void draw(RenderWindow& window);
+	void draw(RenderTarget* target);
 private:
 	RectangleShape rect;
 	void setColor(Color _color);
@@ -156,7 +156,7 @@ public:
 	Label(Point _position, int _symbol_max);
 	~Label();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void draw(RenderWindow& window);
+	void draw(RenderTarget* target);
 private:
 	void textUpdate();
 	Point position;
@@ -171,7 +171,7 @@ public:
 	~NumericLabel();
 	void setTied(float* _tied);
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void draw(RenderWindow& window);
+	void draw(RenderTarget* target);
 private:
 	void textUpdate();
 	float getCut();
@@ -191,7 +191,7 @@ public:
 	Slider(BoundingBox _box);
 	~Slider();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void draw(RenderWindow& window);
+	void draw(RenderTarget* target);
 	float getValue();
 private:
 	void setColor(Color _color);

@@ -20,12 +20,14 @@ public:
 	SubWindow(BoundingBox _box);
 	~SubWindow();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void draw(RenderWindow& window);
+	void draw(RenderTarget* target);
+	void load(Element* element);
 private:
 	void resizeUpdate();
 	void moveUpdate();
 	void resMovUpdate();
 	void viewUpdate();
+	void slideUpdate();
 
 	GrabBox grabs[4];
 
@@ -35,4 +37,10 @@ private:
 
 	RectangleShape header_rect;
 	RectangleShape view_rect;
+
+	std::vector<Element*> elements;
+	RenderTexture texture;
+	Point max_pos;
+	bool h_slider;
+	bool v_slider;
 };

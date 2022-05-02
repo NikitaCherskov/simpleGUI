@@ -94,7 +94,7 @@ public:
 	TextBox(BoundingBox _box, const String& _str);
 	~TextBox();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void draw(RenderWindow& window);
+	void draw(RenderTarget* target);
 private:
 	bool focus;
 	int hl_cursor_alpha;

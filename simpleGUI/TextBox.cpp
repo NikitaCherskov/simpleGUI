@@ -611,10 +611,12 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window) //Баг - наве
 			{
 				if (wm_dat.events[i].text.unicode != 8 && wm_dat.events[i].text.unicode != 13)
 				{
+					hl_cursor_alpha = 200;
 					proc.charInputEvent(wm_dat.events[i].text.unicode);
 				}
 				else if (wm_dat.events[i].text.unicode == 8)
 				{
+					hl_cursor_alpha = 200;
 					proc.backspaceEvent();
 				}
 			}
@@ -664,23 +666,23 @@ void TextBox::update(WMInterfaceData& wm_dat, RenderWindow& window) //Баг - наве
 	}
 }
 
-void TextBox::draw(RenderWindow& window)
+void TextBox::draw(RenderTarget* target)
 {
-	window.draw(rect);
+	target->draw(rect);
 
 
 	Sprite sprite;
 	sprite.setTexture(proc.texture.getTexture());
 	sprite.setPosition(rect.getPosition());
 
-	window.draw(sprite);
+	target->draw(sprite);
 
 	if (focus == 1 && (proc.second_hl_box.position.x - proc.view_pos > 0.0))
 	{
 		RectangleShape hl_cursor_rect(Vector2f(1.0, 16.0));
 		hl_cursor_rect.setPosition(rect.getPosition() + Vector2f(proc.second_hl_box.position.x - proc.view_pos, 1.0));
 		hl_cursor_rect.setFillColor(Color(200, 200, 180, hl_cursor_alpha));
-		window.draw(hl_cursor_rect);
+		target->draw(hl_cursor_rect);
 		cursor_blinding.update();
 		if (cursor_blinding.getIsPassed() == 1)
 		{
