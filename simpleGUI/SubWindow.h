@@ -28,6 +28,8 @@ private:
 	void resMovUpdate();
 	void viewUpdate();
 	void slideUpdate();
+	void spriteCorrection();
+	Sprite sprite;
 
 	GrabBox grabs[4];
 

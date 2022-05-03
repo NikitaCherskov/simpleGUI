@@ -143,7 +143,6 @@ void SubWindow::draw(RenderTarget* target)
 		elements[i]->draw(&texture);
 	}
 	texture.display();
-	Sprite sprite;
 	sprite.setPosition(view_rect.getPosition().x, view_rect.getPosition().y);
 
 
@@ -273,6 +272,29 @@ void SubWindow::slideUpdate()
 		v_rect.setSize(Vector2f(10.0, view_box.height));
 		viewUpdate(); //избавится от повторения
 	}
+}
+
+void SubWindow::spriteCorrection()
+{
+	IntRect rect = sprite.getTextureRect();
+	if ((rect.left + rect.width) > texture.getSize().x)
+	{
+		rect.left = texture.getSize().x - rect.width;
+	}
+	if (rect.left < 0.0)
+	{
+		rect.left = 0.0;
+	}
+
+	if ((rect.top + rect.height) > texture.getSize().y)
+	{
+		rect.top = texture.getSize().y - rect.height;
+	}
+	if (rect.top < 0.0)
+	{
+		rect.top = 0.0;
+	}
+	sprite.setTextureRect(rect);
 }
 
 void SubWindow::load(Element* element)
