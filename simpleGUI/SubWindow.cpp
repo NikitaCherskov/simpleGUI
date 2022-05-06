@@ -56,8 +56,9 @@ SubWindow::SubWindow(BoundingBox _box) :
 	h_slider(0),
 	v_slider(0)
 {
-	h_scrol.sprite = &sprite;
-	h_scrol.texture = &texture;
+	h_scrol.scrol_dat.sprite = &sprite; //нормально заинтерфейсить
+	h_scrol.scrol_dat.texture = &texture;
+
 	resMovUpdate();
 	header_rect.setFillColor(Color(220, 220, 220));
 
@@ -361,9 +362,11 @@ void SubWindow::load(Element* element)
 
 Scroller::Scroller()
 {
+	updates = new HScrollerUpdates;
 	rect.setFillColor(Color(200, 200, 200));
-	scrol_rect.setFillColor(Color(120, 120, 120));
+	scrol_dat.scrol_rect.setFillColor(Color(120, 120, 120));
 }
+/*
 Scroller::Scroller(BoundingBox _box, Sprite* _sprite, RenderTexture* _texture) :
 	box(_box),
 	sprite(_sprite),
@@ -375,89 +378,133 @@ Scroller::Scroller(BoundingBox _box, Sprite* _sprite, RenderTexture* _texture) :
 	scrol_rect.setFillColor(Color(160, 160, 160));
 	modelUpdate();
 }
-
+*/
 Scroller::~Scroller()
 {
 }
 
-void Scroller::update(WMInterfaceData& wm_dat, RenderWindow& window)
+void Scroller::update(WMInterfaceData& wm_dat, RenderWindow& window) /////
 {
-	scrol_box.update(wm_dat.md);
-	if (scrol_box.is_grabbed == 1)
+	updates->update(wm_dat, window, &scrol_dat);
+}
+
+void Scroller::draw(RenderTarget* target)
+{
+	target->draw(rect);
+	target->draw(scrol_dat.scrol_rect);
+}
+
+void Scroller::setSize(Point _size)
+{
+	scrol_dat.box.width = _size.x;
+	scrol_dat.box.height = _size.y;
+	modelUpdate();
+}
+
+void Scroller::setPosition(Point _position)
+{
+	scrol_dat.box.position = _position;
+	modelUpdate();
+}
+
+Point Scroller::getSize()
+{
+	return Point(scrol_dat.box.width, scrol_dat.box.height);
+}
+
+Point Scroller::getPosition()
+{
+	return scrol_dat.box.position;
+}
+
+void Scroller::modelUpdate() /////
+{
+	updates->modelUpdate(&scrol_dat);
+}
+
+
+
+
+
+/*
+VScrollerUpdates::VScrollerUpdates()
+{
+}
+
+VScrollerUpdates::~VScrollerUpdates()
+{
+}
+
+void VScrollerUpdates::update(WMInterfaceData& wm_dat, RenderWindow& window)
+{
+}
+
+void VScrollerUpdates::modelUpdate()
+{
+}
+*/
+
+
+
+
+
+HScrollerUpdates::HScrollerUpdates()
+{
+}
+
+HScrollerUpdates::~HScrollerUpdates()
+{
+}
+
+void HScrollerUpdates::update(WMInterfaceData& wm_dat, RenderWindow& window, ScrolDat* dat)
+{
+	dat->scrol_box.update(wm_dat.md);
+	if (dat->scrol_box.is_grabbed == 1)
 	{
-		float p1 = sprite->getTextureRect().left;
-		float w1 = sprite->getTextureRect().width;
-		float w2 = texture->getSize().x;
-		float op = scrol_box.moved_box.position.x - box.position.x - 1.0;
-		float ow = box.width - 2.0;
+		float p1 = dat->sprite->getTextureRect().left;
+		float w1 = dat->sprite->getTextureRect().width;
+		float w2 = dat->texture->getSize().x;
+		float op = dat->scrol_box.moved_box.position.x - dat->box.position.x - 1.0;
+		float ow = dat->box.width - 2.0;
 		float np, nw;
-		sprite->setTextureRect(IntRect(w2 * (op / ow), sprite->getTextureRect().top, sprite->getTextureRect().width, sprite->getTextureRect().height));
+		dat->sprite->setTextureRect(IntRect(w2 * (op / ow), dat->sprite->getTextureRect().top, dat->sprite->getTextureRect().width, dat->sprite->getTextureRect().height));
 	}
 
-	IntRect rect = sprite->getTextureRect();
-	if ((rect.left + rect.width) > texture->getSize().x)
+	IntRect rect = dat->sprite->getTextureRect();
+	if ((rect.left + rect.width) > dat->texture->getSize().x)
 	{
-		rect.left = texture->getSize().x - rect.width;
+		rect.left = dat->texture->getSize().x - rect.width;
 	}
 	if (rect.left < 0.0)
 	{
 		rect.left = 0.0;
 	}
 
-	if ((rect.top + rect.height) > texture->getSize().y)
+	if ((rect.top + rect.height) > dat->texture->getSize().y)
 	{
-		rect.top = texture->getSize().y - rect.height;
+		rect.top = dat->texture->getSize().y - rect.height;
 	}
 	if (rect.top < 0.0)
 	{
 		rect.top = 0.0;
 	}
-	sprite->setTextureRect(rect);
-	modelUpdate(); //сделать оптимизированный modelUpdate()
+	dat->sprite->setTextureRect(rect);
+	modelUpdate(dat);
 }
 
-void Scroller::draw(RenderTarget* target)
+void HScrollerUpdates::modelUpdate(ScrolDat* dat)
 {
-	target->draw(rect);
-	target->draw(scrol_rect);
-}
-
-void Scroller::setSize(Point _size)
-{
-	box.width = _size.x;
-	box.height = _size.y;
-	modelUpdate();
-}
-
-void Scroller::setPosition(Point _position)
-{
-	box.position = _position;
-	modelUpdate();
-}
-
-Point Scroller::getSize()
-{
-	return Point(box.width, box.height);
-}
-
-Point Scroller::getPosition()
-{
-	return box.position;
-}
-
-void Scroller::modelUpdate()
-{
-	float p1 = sprite->getTextureRect().left;
-	float w1 = sprite->getTextureRect().width;
-	float w2 = texture->getSize().x;
-	float op = box.position.x + 1.0;
-	float ow = box.width - 2.0;
+	float p1 = dat->sprite->getTextureRect().left;
+	float w1 = dat->sprite->getTextureRect().width;
+	float w2 = dat->texture->getSize().x;
+	float op = dat->box.position.x + 1.0;
+	float ow = dat->box.width - 2.0;
 	float np, nw;
 	nw = ow * (w1 / w2);
 	np = (p1 / w2) * ow + op;
-	scrol_rect.setPosition(np, box.position.y + 1.0);
-	scrol_rect.setSize(Vector2f(nw, box.height - 2.0));
-	scrol_box.box.position = Point(np, box.position.y + 1.0);
-	scrol_box.box.width = nw;
-	scrol_box.box.height = box.height - 2.0;
+	dat->scrol_rect.setPosition(np, dat->box.position.y + 1.0);
+	dat->scrol_rect.setSize(Vector2f(nw, dat->box.height - 2.0));
+	dat->scrol_box.box.position = Point(np, dat->box.position.y + 1.0);
+	dat->scrol_box.box.width = nw;
+	dat->scrol_box.box.height = dat->box.height - 2.0;
 }

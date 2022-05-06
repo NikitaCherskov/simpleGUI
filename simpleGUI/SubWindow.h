@@ -12,11 +12,51 @@ public:
 	BoundingBox box;
 	BoundingBox moved_box;
 };
+
+class ScrolDat
+{
+public:
+	//ScrolDat();
+	//~ScrolDat();
+	Sprite* sprite;
+	RenderTexture* texture;
+	BoundingBox box;
+	GrabBox scrol_box;
+	RectangleShape scrol_rect;
+
+};
+class ScrollerUpdates
+{
+public:
+	//ScrollerUpdates();
+	//~ScrollerUpdates();
+	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window, ScrolDat* dat) = 0;
+	virtual void modelUpdate(ScrolDat* dat) = 0;
+};
+/*
+class VScrollerUpdates : public ScrollerUpdates
+{
+public:
+	VScrollerUpdates();
+	~VScrollerUpdates();
+	void update(WMInterfaceData& wm_dat, RenderWindow& window);
+	void modelUpdate();
+};
+*/
+class HScrollerUpdates : public ScrollerUpdates
+{
+public:
+	HScrollerUpdates();
+	~HScrollerUpdates();
+	void update(WMInterfaceData& wm_dat, RenderWindow& window, ScrolDat* dat);
+	void modelUpdate(ScrolDat* dat);
+};
+
 class Scroller
 {
 public:
 	Scroller();
-	Scroller(BoundingBox _box, Sprite* _sprite = NULL, RenderTexture* _texture = NULL);
+	//Scroller(BoundingBox _box, Sprite* _sprite = NULL, RenderTexture* _texture = NULL);
 	~Scroller();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
 	void draw(RenderTarget* target);
@@ -25,14 +65,11 @@ public:
 	void setPosition(Point _position);
 	Point getSize();
 	Point getPosition();
-	Sprite* sprite;
-	RenderTexture* texture;
+	ScrolDat scrol_dat;
 private:
 	void modelUpdate();
-	BoundingBox box;
-	GrabBox scrol_box;
+	ScrollerUpdates* updates;
 	RectangleShape rect;
-	RectangleShape scrol_rect;
 };
 class SubWindow :public Element
 {
