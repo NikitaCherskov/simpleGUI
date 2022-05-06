@@ -4,7 +4,7 @@ GrabBox::GrabBox()
 {
 }
 
-GrabBox::GrabBox(BoundingBox _box):
+GrabBox::GrabBox(BoundingBox _box) :
 	box(_box),
 	moved_box(_box),
 	is_grabbed(0)
@@ -49,13 +49,15 @@ SubWindow::SubWindow()
 {
 }
 
-SubWindow::SubWindow(BoundingBox _box):
+SubWindow::SubWindow(BoundingBox _box) :
 	box(_box),
 	view_box(Point(0.0, 15.0), 0.0, 0.0),
 	max_pos(0.0, 0.0),
 	h_slider(0),
 	v_slider(0)
 {
+	h_scrol.sprite = &sprite;
+	h_scrol.texture = &texture;
 	resMovUpdate();
 	header_rect.setFillColor(Color(220, 220, 220));
 
@@ -80,6 +82,7 @@ void SubWindow::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	int i;
 	MouseData timed_md = wm_dat.md;
 	timed_md.mp -= box.position;
+	h_scrol.update(wm_dat, window);
 	for (i = 0; i < 4; i++)
 	{
 		grabs[i].update(timed_md);
@@ -116,6 +119,7 @@ void SubWindow::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	{
 		WMInterfaceData timed_wm_dat = wm_dat;
 		timed_wm_dat.md.mp -= view_rect.getPosition();
+		timed_wm_dat.md.mp += Point(sprite.getTextureRect().left, sprite.getTextureRect().top);
 		elements[i]->update(timed_wm_dat, window);
 	}
 }
@@ -132,6 +136,7 @@ void SubWindow::draw(RenderTarget* target)
 	if (h_slider == 1)
 	{
 		target->draw(h_rect);
+		h_scrol.draw(target);
 	}
 	if (v_slider == 1 && h_slider == 1)
 	{
@@ -155,7 +160,7 @@ void SubWindow::draw(RenderTarget* target)
 	{
 		h = texture.getSize().y;
 	}
-	sprite.setTextureRect(IntRect(0.0, 0.0, w, h));
+	sprite.setTextureRect(IntRect(sprite.getTextureRect().left, sprite.getTextureRect().top, w, h));
 	//std::cout << view_rect.getPosition().x << ":" << view_rect.getPosition().y << "\n";
 	sprite.setTexture(texture.getTexture());
 	target->draw(sprite);
@@ -198,13 +203,16 @@ void SubWindow::viewUpdate()
 	header_rect.setPosition(box.position.x, box.position.y);
 	view_rect.setPosition(box.position.x + 1.0, box.position.y + 16.0);
 
-	h_rect.setPosition(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y);
+	h_rect.setPosition(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y);////
+	h_scrol.setPosition(Point(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y));
+
 	v_rect.setPosition(view_box.getRight() + box.position.x, view_box.getUp() + box.position.y);
 	inter_hv_rect.setPosition(view_box.getRight() + box.position.x, view_box.getDown() + box.position.y);
 }
 
 void SubWindow::slideUpdate()
 {
+	/*
 	if (texture.getSize().x > view_rect.getSize().x)
 	{
 		h_slider = 1;
@@ -254,6 +262,39 @@ void SubWindow::slideUpdate()
 			h_slider = 0;
 		}
 	}
+	*/
+	if (texture.getSize().x >= view_box.width - 1.0)
+	{
+		h_slider = 1;
+		if (texture.getSize().y >= (view_box.height - 11.0)) //состоит из - 10.0 - 1.0, где 1.0 - смещение с учетом тонкой границы
+		{
+			v_slider = 1;
+		}
+		else
+		{
+			v_slider = 0;
+		}
+	}
+	else
+	{
+		h_slider = 0;
+		if (texture.getSize().y >= view_box.height - 1.0)
+		{
+			v_slider = 1;
+			if (texture.getSize().x >= (view_box.width - 11.0))
+			{
+				h_slider = 1;
+			}
+			else
+			{
+				h_slider = 0;
+			}
+		}
+		else
+		{
+			v_slider = 0;
+		}
+	}
 
 	if (v_slider == 1)
 	{
@@ -263,7 +304,8 @@ void SubWindow::slideUpdate()
 	{
 		view_box.height -= 10.0;
 		//h_rect.setPosition(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y);
-		h_rect.setSize(Vector2f(view_box.width, 10.0));
+		h_rect.setSize(Vector2f(view_box.width, 10.0));////
+		h_scrol.setSize(Point(view_box.width, 10.0));
 		viewUpdate(); //избавится от повторения
 	}
 	if (v_slider == 1)
@@ -310,4 +352,112 @@ void SubWindow::load(Element* element)
 	}
 	texture.create(max_pos.x, max_pos.y);
 	slideUpdate();
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Scroller::Scroller()
+{
+	rect.setFillColor(Color(200, 200, 200));
+	scrol_rect.setFillColor(Color(120, 120, 120));
+}
+Scroller::Scroller(BoundingBox _box, Sprite* _sprite, RenderTexture* _texture) :
+	box(_box),
+	sprite(_sprite),
+	texture(_texture),
+	rect(Vector2f(_box.width, _box.height))
+{
+	rect.setPosition(_box.position.x, _box.position.y);
+	rect.setFillColor(Color(200, 200, 200));
+	scrol_rect.setFillColor(Color(160, 160, 160));
+	modelUpdate();
+}
+
+Scroller::~Scroller()
+{
+}
+
+void Scroller::update(WMInterfaceData& wm_dat, RenderWindow& window)
+{
+	scrol_box.update(wm_dat.md);
+	if (scrol_box.is_grabbed == 1)
+	{
+		float p1 = sprite->getTextureRect().left;
+		float w1 = sprite->getTextureRect().width;
+		float w2 = texture->getSize().x;
+		float op = scrol_box.moved_box.position.x - box.position.x - 1.0;
+		float ow = box.width - 2.0;
+		float np, nw;
+		sprite->setTextureRect(IntRect(w2 * (op / ow), sprite->getTextureRect().top, sprite->getTextureRect().width, sprite->getTextureRect().height));
+	}
+
+	IntRect rect = sprite->getTextureRect();
+	if ((rect.left + rect.width) > texture->getSize().x)
+	{
+		rect.left = texture->getSize().x - rect.width;
+	}
+	if (rect.left < 0.0)
+	{
+		rect.left = 0.0;
+	}
+
+	if ((rect.top + rect.height) > texture->getSize().y)
+	{
+		rect.top = texture->getSize().y - rect.height;
+	}
+	if (rect.top < 0.0)
+	{
+		rect.top = 0.0;
+	}
+	sprite->setTextureRect(rect);
+	modelUpdate(); //сделать оптимизированный modelUpdate()
+}
+
+void Scroller::draw(RenderTarget* target)
+{
+	target->draw(rect);
+	target->draw(scrol_rect);
+}
+
+void Scroller::setSize(Point _size)
+{
+	box.width = _size.x;
+	box.height = _size.y;
+	modelUpdate();
+}
+
+void Scroller::setPosition(Point _position)
+{
+	box.position = _position;
+	modelUpdate();
+}
+
+Point Scroller::getSize()
+{
+	return Point(box.width, box.height);
+}
+
+Point Scroller::getPosition()
+{
+	return box.position;
+}
+
+void Scroller::modelUpdate()
+{
+	float p1 = sprite->getTextureRect().left;
+	float w1 = sprite->getTextureRect().width;
+	float w2 = texture->getSize().x;
+	float op = box.position.x + 1.0;
+	float ow = box.width - 2.0;
+	float np, nw;
+	nw = ow * (w1 / w2);
+	np = (p1 / w2) * ow + op;
+	scrol_rect.setPosition(np, box.position.y + 1.0);
+	scrol_rect.setSize(Vector2f(nw, box.height - 2.0));
+	scrol_box.box.position = Point(np, box.position.y + 1.0);
+	scrol_box.box.width = nw;
+	scrol_box.box.height = box.height - 2.0;
 }
