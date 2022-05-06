@@ -100,6 +100,7 @@ private:
 	RectangleShape h_rect;
 	RectangleShape v_rect; //ÖÅËÜ_ÓÁĞÀÒü
 	Scroller h_scrol;
+	Scroller v_scrol;
 	RectangleShape inter_hv_rect;
 
 	std::vector<Element*> elements;

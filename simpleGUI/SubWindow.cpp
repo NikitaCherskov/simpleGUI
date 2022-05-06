@@ -46,7 +46,8 @@ void GrabBox::update(MouseData md)
 
 
 SubWindow::SubWindow():
-	h_scrol(1)
+	h_scrol(1),
+	v_scrol(0)
 {
 }
 
@@ -56,10 +57,16 @@ SubWindow::SubWindow(BoundingBox _box) :
 	max_pos(0.0, 0.0),
 	h_slider(0),
 	v_slider(0),
-	h_scrol(1)
+	h_scrol(1),
+	v_scrol(0)
 {
+
 	h_scrol.scrol_dat.sprite = &sprite; //нормально заинтерфейсить
 	h_scrol.scrol_dat.texture = &texture;
+
+	v_scrol.scrol_dat.sprite = &sprite; //нормально заинтерфейсить
+	v_scrol.scrol_dat.texture = &texture;
+
 
 	resMovUpdate();
 	header_rect.setFillColor(Color(220, 220, 220));
@@ -86,6 +93,7 @@ void SubWindow::update(WMInterfaceData& wm_dat, RenderWindow& window)
 	MouseData timed_md = wm_dat.md;
 	timed_md.mp -= box.position;
 	h_scrol.update(wm_dat, window);
+	v_scrol.update(wm_dat, window);
 	for (i = 0; i < 4; i++)
 	{
 		grabs[i].update(timed_md);
@@ -135,6 +143,7 @@ void SubWindow::draw(RenderTarget* target)
 	if (v_slider == 1)
 	{
 		target->draw(v_rect);
+		v_scrol.draw(target);
 	}
 	if (h_slider == 1)
 	{
@@ -206,10 +215,16 @@ void SubWindow::viewUpdate()
 	header_rect.setPosition(box.position.x, box.position.y);
 	view_rect.setPosition(box.position.x + 1.0, box.position.y + 16.0);
 
+
+
 	h_rect.setPosition(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y);////
 	h_scrol.setPosition(Point(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y));
 
 	v_rect.setPosition(view_box.getRight() + box.position.x, view_box.getUp() + box.position.y);
+	v_scrol.setPosition(Point(view_box.getRight() + box.position.x, view_box.getUp() + box.position.y));
+
+
+
 	inter_hv_rect.setPosition(view_box.getRight() + box.position.x, view_box.getDown() + box.position.y);
 }
 
@@ -315,6 +330,7 @@ void SubWindow::slideUpdate()
 	{
 		//v_rect.setPosition(view_box.getRight() + box.position.x, view_box.getUp() + box.position.y);
 		v_rect.setSize(Vector2f(10.0, view_box.height));
+		v_scrol.setSize(Point(10.0, view_box.height));
 		viewUpdate(); //избавится от повторения
 	}
 }
@@ -540,7 +556,7 @@ void VScrollerUpdates::update(WMInterfaceData& wm_dat, RenderWindow& window, Scr
 		float op = dat->scrol_box.moved_box.position.y - dat->box.position.y - 1.0;
 		float oh = dat->box.height - 2.0;
 		float np, nh;
-		dat->sprite->setTextureRect(IntRect(dat->sprite->getTextureRect().top, h2 * (op / oh), dat->sprite->getTextureRect().width, dat->sprite->getTextureRect().height));
+		dat->sprite->setTextureRect(IntRect(dat->sprite->getTextureRect().left, h2 * (op / oh), dat->sprite->getTextureRect().width, dat->sprite->getTextureRect().height));
 	}
 
 	IntRect rect = dat->sprite->getTextureRect();
@@ -576,8 +592,8 @@ void VScrollerUpdates::modelUpdate(ScrolDat* dat)
 	nh = oh * (h1 / h2);
 	np = (p1 / h2) * oh + op;
 	dat->scrol_rect.setPosition(dat->box.position.x + 1.0, np);
-	dat->scrol_rect.setSize(Vector2f(dat->box.height - 2.0, nh));
-	dat->scrol_box.box.position = Point(dat->box.position.y + 1.0, np);
+	dat->scrol_rect.setSize(Vector2f(dat->box.width - 2.0, nh));
+	dat->scrol_box.box.position = Point(dat->box.position.x + 1.0, np);
 	dat->scrol_box.box.height = nh;
 	dat->scrol_box.box.width = dat->box.width - 2.0;
 }
