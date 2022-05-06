@@ -33,16 +33,16 @@ public:
 	virtual void update(WMInterfaceData& wm_dat, RenderWindow& window, ScrolDat* dat) = 0;
 	virtual void modelUpdate(ScrolDat* dat) = 0;
 };
-/*
+
 class VScrollerUpdates : public ScrollerUpdates
 {
 public:
 	VScrollerUpdates();
 	~VScrollerUpdates();
-	void update(WMInterfaceData& wm_dat, RenderWindow& window);
-	void modelUpdate();
+	void update(WMInterfaceData& wm_dat, RenderWindow& window, ScrolDat* dat);
+	void modelUpdate(ScrolDat* dat);;
 };
-*/
+
 class HScrollerUpdates : public ScrollerUpdates
 {
 public:
@@ -55,7 +55,7 @@ public:
 class Scroller
 {
 public:
-	Scroller();
+	Scroller(bool h_orient);
 	//Scroller(BoundingBox _box, Sprite* _sprite = NULL, RenderTexture* _texture = NULL);
 	~Scroller();
 	void update(WMInterfaceData& wm_dat, RenderWindow& window);
