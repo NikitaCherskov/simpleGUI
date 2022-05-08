@@ -2,7 +2,7 @@
 #include "simpleGUI.h"
 #include "GUITimer.h"
 
-bool isLetter(char c);
+bool isLetter(wchar_t c);
 
 class NumMark
 {

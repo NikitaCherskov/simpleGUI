@@ -715,7 +715,7 @@ void TextBox::draw(RenderTarget* target)
 	*/
 }
 
-bool isLetter(char c)
+bool isLetter(wchar_t c)
 {
 	if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' ||
 		c >= 'À' && c <= 'ß' || c >= 'à' && c <= 'ÿ' ||
