@@ -54,7 +54,7 @@ SubWindow::SubWindow():
 SubWindow::SubWindow(BoundingBox _box) :
 	box(_box),
 	view_box(Point(0.0, 15.0), 0.0, 0.0),
-	max_pos(0.0, 0.0),
+	max_pos(0.0, 0.0), //возможно убрать
 	h_slider(0),
 	v_slider(0),
 	h_scrol(1),
@@ -68,7 +68,7 @@ SubWindow::SubWindow(BoundingBox _box) :
 	v_scrol.scrol_dat.texture = &texture;
 
 
-	resMovUpdate();
+	//resMovUpdate();
 	header_rect.setFillColor(Color(220, 220, 220));
 
 	h_rect.setFillColor(Color(180, 180, 180));
@@ -316,11 +316,11 @@ void SubWindow::slideUpdate()
 
 	if (v_slider == 1)
 	{
-		view_box.width -= 10.0;
+		view_box.width = box.width - 10.0;
 	}
 	if (h_slider == 1)
 	{
-		view_box.height -= 10.0;
+		view_box.height = box.height - 25.0;
 		//h_rect.setPosition(view_box.getLeft() + box.position.x, view_box.getDown() + box.position.y);
 		h_rect.setSize(Vector2f(view_box.width, 10.0));////
 		h_scrol.setSize(Point(view_box.width, 10.0));
