@@ -117,7 +117,7 @@ float getAngle(Point relative_point)
 	const float pi = 3.14159265;
 	return 90.0 - atan2(relative_point.x, relative_point.y) * 180.0 / pi;
 }
-void drawLine(Point first, Point second, Color colorizing, RenderWindow& window)
+void drawLine(Point first, Point second, Color colorizing, RenderTarget* target)
 {
 	/*
 	const float pi = 3.14159265;
@@ -138,6 +138,6 @@ void drawLine(Point first, Point second, Color colorizing, RenderWindow& window)
 	v[1].color = colorizing;
 	v[1].position.x = second.x;
 	v[1].position.y = second.y;
-	window.draw(v, 2, Lines);
+	target->draw(v, 2, Lines);
 	return;
 }

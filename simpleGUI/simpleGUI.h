@@ -4,6 +4,8 @@
 #include "line_functions.h"
 #include <vector>
 
+//настроить приоритет вывода
+
 using namespace sf;
 
 class Interface;
@@ -205,3 +207,4 @@ private:
 };
 
 #include "TextBox.h"
+#include "CheckBox.h"

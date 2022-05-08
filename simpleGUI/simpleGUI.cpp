@@ -330,7 +330,7 @@ Button::Button() //заполнить этот коструктор
 Button::Button(BoundingBox _box) :
 	Element(_box)
 {
-	textUpdate();
+	textUpdate(); ///поменять местами с нижним
 	modelUpdate();
 	rect.setOutlineThickness(1.0);
 	rect.setOutlineColor(Color(128, 128, 128));

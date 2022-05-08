@@ -6,7 +6,7 @@ class Point;
 float getLenth(Point first, Point second);
 float getLenth(Point relative_point);
 float getAngle(Point relative_point);
-void drawLine(Point first, Point second, Color colorizing, RenderWindow& window);
+void drawLine(Point first, Point second, Color colorizing, RenderTarget* target);
 
 
 class Point

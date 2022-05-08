@@ -28,6 +28,10 @@ int main()
 
 	SubWindow* wnd = new SubWindow(BoundingBox(Point(10.0, 10.0), 200.0, 200.0));
 
+	BoundingBox box4(Point(200.0, 600.0), 200.0, 20.0);
+	CheckBox* chk;
+	chk = new CheckBox(box4);
+
 	//btn->setString("abobus");
 	exp.load(tbx);
 	//exp.load(sld);
@@ -35,6 +39,7 @@ int main()
 	exp.load(lbl);
 	exp.load(nlb);
 	exp.load(wnd);
+	exp.load(chk);
 	wnd->load(btn);
 	wnd->load(sld);
 
