@@ -35,6 +35,12 @@ int main()
 	BoundingBox box5(Point(200.0, 700.0), 200.0, 20.0);
 	RadioButton* rbt;
 	rbt = new RadioButton(box5);
+	box5.position.y = 800;
+	RadioButton* rbt1;
+	rbt1 = new RadioButton(box5);
+	RadioGroup rbt_grp;
+	rbt_grp.includeToGroup(rbt);
+	rbt_grp.includeToGroup(rbt1);
 
 	//btn->setString("abobus");
 	exp.load(tbx);
@@ -45,6 +51,7 @@ int main()
 	exp.load(wnd);
 	exp.load(chk);
 	exp.load(rbt);
+	exp.load(rbt1);
 	wnd->load(btn);
 	wnd->load(sld);
 

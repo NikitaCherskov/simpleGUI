@@ -6,7 +6,8 @@ RadioButton::RadioButton() //заполнить этот коструктор
 
 RadioButton::RadioButton(BoundingBox _box) :
 	Element(_box),
-	is_checked(0)
+	is_checked(0),
+	group(NULL)
 {
 	modelUpdate();
 	textUpdate();
@@ -31,6 +32,10 @@ void RadioButton::update(WMInterfaceData& wm_dat, RenderWindow& window)
 			setColor(Color(30, 30, 30));
 			if (wm_dat.prev_lmp == 0)
 			{
+				if (group != NULL)
+				{
+					((MyRadioGroup*)group)->resetChecks();
+				}
 				if (is_checked == 1)
 				{
 					is_checked = 0;
@@ -63,6 +68,16 @@ void RadioButton::draw(RenderTarget* target)
 	target->draw(text);
 }
 
+void RadioButton::includeToGroup(RadioGroup* _group)
+{
+	group = (MyRadioGroup*)_group;
+}
+
+void RadioButton::setCheck(bool _check)
+{
+	is_checked = _check;
+}
+
 void RadioButton::setColor(Color _color)
 {
 	out_circ.setFillColor(_color);
@@ -85,4 +100,43 @@ void RadioButton::modelUpdate()
 	out_circ.setRadius(6);
 	inner_circ.setPosition(box.position.x + 1.0 + 2.0, box.position.y + 1.0 + 2.0);
 	inner_circ.setRadius(4);
+}
+
+
+
+
+RadioGroup::RadioGroup()
+{
+}
+
+RadioGroup::~RadioGroup()
+{
+}
+
+void RadioGroup::includeToGroup(RadioButton* _rbt)
+{
+	rbts.push_back(_rbt);
+	((MyRadioButton*)_rbt)->includeToGroup(this);
+}
+
+void RadioGroup::excludeFromGroup(RadioButton* _rbt)
+{
+	int i;;
+	for (i = 0; i < rbts.size(); i++)
+	{
+		if (rbts[i] == _rbt)
+		{
+			rbts.erase(rbts.begin() + i);
+			break;
+		}
+	}
+}
+
+void RadioGroup::resetChecks()
+{
+	int i;
+	for (i = 0; i < rbts.size(); i++)
+	{
+		((MyRadioButton*)rbts[i])->setCheck(0);
+	}
 }

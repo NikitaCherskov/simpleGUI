@@ -52,7 +52,7 @@ void CheckBox::update(WMInterfaceData& wm_dat, RenderWindow& window)
 void CheckBox::draw(RenderTarget* target)
 {
 	target->draw(rect);
-	if (is_checked == 1)
+	if (is_checked == 1) //окрашивать в синий цвет
 	{
 		const int check_size = 3.0; //костыль!
 		Point c;
