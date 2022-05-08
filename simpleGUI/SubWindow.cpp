@@ -68,7 +68,7 @@ SubWindow::SubWindow(BoundingBox _box) :
 	v_scrol.scrol_dat.texture = &texture;
 
 
-	//resMovUpdate();
+	//resMovUpdate(); //или оставить? 
 	header_rect.setFillColor(Color(220, 220, 220));
 
 	h_rect.setFillColor(Color(180, 180, 180));

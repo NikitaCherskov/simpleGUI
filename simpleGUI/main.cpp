@@ -32,6 +32,10 @@ int main()
 	CheckBox* chk;
 	chk = new CheckBox(box4);
 
+	BoundingBox box5(Point(200.0, 700.0), 200.0, 20.0);
+	RadioButton* rbt;
+	rbt = new RadioButton(box5);
+
 	//btn->setString("abobus");
 	exp.load(tbx);
 	//exp.load(sld);
@@ -40,6 +44,7 @@ int main()
 	exp.load(nlb);
 	exp.load(wnd);
 	exp.load(chk);
+	exp.load(rbt);
 	wnd->load(btn);
 	wnd->load(sld);
 

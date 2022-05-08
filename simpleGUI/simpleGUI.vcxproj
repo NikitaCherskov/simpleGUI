@@ -149,6 +149,7 @@
     <ClCompile Include="line_functions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mouseProcessor.cpp" />
+    <ClCompile Include="RadioButton.cpp" />
     <ClCompile Include="simpleGUI.cpp" />
     <ClCompile Include="SubWindow.cpp" />
     <ClCompile Include="TextBox.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="GUITimer.h" />
     <ClInclude Include="line_functions.h" />
     <ClInclude Include="mouseProcessor.h" />
+    <ClInclude Include="RadioButton.h" />
     <ClInclude Include="simpleGUI.h" />
     <ClInclude Include="SLLStructure.h" />
     <ClInclude Include="SubWindow.h" />
