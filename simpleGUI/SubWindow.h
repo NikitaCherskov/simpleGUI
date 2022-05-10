@@ -1,18 +1,7 @@
 #pragma once
+#include "GrabBox.h"
 #include "simpleGUI.h"
-class GrabBox
-{
-public:
-	GrabBox();
-	GrabBox(BoundingBox _box);
-	~GrabBox();
-	void update(MouseData md);
-	bool is_grabbed;
-	Point grab_point;
-	BoundingBox box;
-	BoundingBox moved_box;
-};
-
+//Сделать так, чтобы границы изменения мвсштаба не налезали на скроллеры
 class ScrolDat
 {
 public:
@@ -23,7 +12,6 @@ public:
 	BoundingBox box;
 	GrabBox scrol_box;
 	RectangleShape scrol_rect;
-
 };
 class ScrollerUpdates
 {

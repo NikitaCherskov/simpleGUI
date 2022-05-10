@@ -32,14 +32,7 @@ const Font& getFont();
 #include "Fonts.h"
 #include "GUITimer.h"
 
-class MouseData
-{
-public:
-	Point mp;
-	Point prev_mp;
-	bool lmp;
-	bool prev_lmp;
-};
+
 class WMInterfaceData
 {
 public:
@@ -209,3 +202,4 @@ private:
 #include "TextBox.h"
 #include "CheckBox.h"
 #include "RadioButton.h"
+#include "GeneralList.h"

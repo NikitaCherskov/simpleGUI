@@ -24,3 +24,11 @@ public:
 	float width;
 	float height;
 };
+class MouseData //גûםוסעט ג מעהוכüםûי פאיכ .h
+{
+public:
+	Point mp;
+	Point prev_mp;
+	bool lmp;
+	bool prev_lmp;
+};

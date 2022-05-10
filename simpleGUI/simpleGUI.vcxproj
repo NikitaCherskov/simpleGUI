@@ -145,6 +145,8 @@
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="CheckBox.cpp" />
     <ClCompile Include="Fonts.cpp" />
+    <ClCompile Include="GeneralList.cpp" />
+    <ClCompile Include="GrabBox.cpp" />
     <ClCompile Include="GUITimer.cpp" />
     <ClCompile Include="line_functions.cpp" />
     <ClCompile Include="main.cpp" />
@@ -159,6 +161,8 @@
     <ClInclude Include="CheckBox.h" />
     <ClInclude Include="DLLStructure.h" />
     <ClInclude Include="Fonts.h" />
+    <ClInclude Include="GeneralList.h" />
+    <ClInclude Include="GrabBox.h" />
     <ClInclude Include="GUITimer.h" />
     <ClInclude Include="line_functions.h" />
     <ClInclude Include="mouseProcessor.h" />
